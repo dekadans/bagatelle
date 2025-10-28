@@ -1,0 +1,9 @@
+# Bagatelle exclusions
+/vendor
+/node_modules
+/.idea
+/.vscode
+.env
+*.log
+.DS_Store
+Thumbs.db

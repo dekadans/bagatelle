@@ -1,0 +1,29 @@
+{
+  "name": "tthe/bagatelle",
+  "description": "Bagatelle is a PHP boilerplate bundle for very simple websites and APIs.",
+  "type": "project",
+  "license": "MIT",
+  "version": "1.0.0",
+  "require": {
+    "php": "^8.2",
+    "symfony/http-kernel": "^7.3",
+    "symfony/routing": "^7.3",
+    "symfony/console": "^7.3",
+    "symfony/dotenv": "^7.3",
+    "symfony/config": "^7.3",
+    "twig/twig": "^3.21",
+    "php-di/php-di": "^7.1",
+    "monolog/monolog": "^3.9"
+  },
+  "scripts": {
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ]
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/",
+      "tthe\\Bagatelle\\": "bagatelle/"
+    }
+  }
+}
