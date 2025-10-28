@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * The main entrypoint for HTTP requests (front controller).
  * Uses Symfony HttpKernel and its event-based architecture.
  */
@@ -12,7 +12,8 @@ use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\EventListener\ErrorListener;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\HttpKernel\HttpKernel;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Loader\AttributeDirectoryLoader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use tthe\Bagatelle\AttributeRouteControllerLoader;
+use tthe\Bagatelle\ContainerValueResolver;
 use tthe\Bagatelle\ErrorHandler;
 
 $envFile = __DIR__ . '/../.env';
@@ -57,10 +59,20 @@ $matcher = new UrlMatcher($routes, new RequestContext());
 $dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack()));
 $dispatcher->addSubscriber(new ErrorListener(ErrorHandler::class));
 
-// Setup HTTP processor
-$kernel = new HttpKernel($dispatcher, new ControllerResolver());
+// Resolvers for controller classes and action parameters
+$controllerResolver = new ContainerControllerResolver($container);
+$containerResolver = new ContainerValueResolver($container);
+$resolvers = array_merge(ArgumentResolver::getDefaultArgumentValueResolvers(), [$containerResolver]);
+$argumentResolver = new ArgumentResolver(argumentValueResolvers: $resolvers);
 
-// Execute request
+// Set up HTTP kernel and execute request
+$kernel = new HttpKernel(
+    $dispatcher,
+    $controllerResolver,
+    new RequestStack(),
+    $argumentResolver
+);
+
 $response = $kernel->handle($request);
 $response->prepare($request);
 $response->send();
