@@ -6,23 +6,22 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Controllers\ErrorController;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\EventListener\ErrorListener;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Component\Routing\Loader\AttributeClassLoader;
 use Symfony\Component\Routing\Loader\AttributeDirectoryLoader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
-use tthe\Bagatelle\AttributeRouteControllerLoader;
-use tthe\Bagatelle\ContainerValueResolver;
-use tthe\Bagatelle\ErrorHandler;
+use Symfony\Component\Routing\Route;
 
 $envFile = __DIR__ . '/../.env';
 
@@ -47,31 +46,33 @@ $fileLocator = $container->get(FileLocatorInterface::class);
 /** @var EventDispatcherInterface $dispatcher */
 $dispatcher = $container->get(EventDispatcherInterface::class);
 
-// Create HTTP request
-$request = Request::createFromGlobals();
-
 // Setup routing
-$routeDirLoader = new AttributeDirectoryLoader($fileLocator, new AttributeRouteControllerLoader());
+$attributeControllerLoader = new class() extends AttributeClassLoader {
+    protected function configureRoute(
+        Route $route,
+        \ReflectionClass $class,
+        \ReflectionMethod $method,
+        object $attr
+    ): void {
+        $controller = $method->getName() === '__invoke'
+            ? $class->getName()
+            : $class->getName().'::'.$method->getName();
+        $route->setDefault('_controller', $controller);
+    }
+};
+
+$routeDirLoader = new AttributeDirectoryLoader($fileLocator, $attributeControllerLoader);
 $routes = $routeDirLoader->load('src/Controllers');
 $matcher = new UrlMatcher($routes, new RequestContext());
 
 // Listen to kernel events
 $dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack()));
-$dispatcher->addSubscriber(new ErrorListener(ErrorHandler::class));
-
-// Resolvers for controller classes and action parameters
-$controllerResolver = new ContainerControllerResolver($container);
-$containerResolver = new ContainerValueResolver($container);
-$resolvers = array_merge(ArgumentResolver::getDefaultArgumentValueResolvers(), [$containerResolver]);
-$argumentResolver = new ArgumentResolver(argumentValueResolvers: $resolvers);
+$dispatcher->addSubscriber(new ErrorListener(ErrorController::class));
 
 // Set up HTTP kernel and execute request
-$kernel = new HttpKernel(
-    $dispatcher,
-    $controllerResolver,
-    new RequestStack(),
-    $argumentResolver
-);
+$kernel = new HttpKernel($dispatcher, new ContainerControllerResolver($container));
+
+$request = Request::createFromGlobals();
 
 $response = $kernel->handle($request);
 $response->prepare($request);

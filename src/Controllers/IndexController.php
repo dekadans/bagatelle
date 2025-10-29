@@ -6,12 +6,21 @@ use App\Services\Greet\GreetingInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Twig\Environment as Template;
 
-class IndexController
+readonly class IndexController
 {
+    public function __construct(
+        private Template $view,
+        private GreetingInterface $greeter
+    ) {}
+
     #[Route('/', name: 'index')]
-    function __invoke(Request $request, GreetingInterface $greeter): Response
+    function __invoke(Request $request): Response
     {
-        return new Response($greeter->greet());
+        $view = $this->view->render('welcome.html.twig', [
+            'greeting' => $this->greeter->greet()
+        ]);
+        return new Response($view);
     }
 }
