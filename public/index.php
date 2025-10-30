@@ -4,12 +4,9 @@
  * Uses Symfony HttpKernel and its event-based architecture.
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
 use App\Controllers\ErrorController;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Config\FileLocatorInterface;
-use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -23,20 +20,8 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 
-$envFile = __DIR__ . '/../.env';
-
-if (!file_exists($envFile)) {
-    die('Error! No .env exists. Create a copy from .env.example.');
-}
-
-$dotenv = new Dotenv();
-$dotenv->load($envFile);
-
-if ($_ENV["BAGATELLE_DETAILED_ERRORS"]) {
-    error_reporting(E_ALL & ~E_NOTICE);
-} else {
-    error_reporting(0);
-}
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/environment.php';
 
 // Setup DI container and grab what we need
 /** @var ContainerInterface $container */
