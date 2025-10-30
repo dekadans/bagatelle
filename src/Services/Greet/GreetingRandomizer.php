@@ -29,7 +29,6 @@ class GreetingRandomizer implements GreetingInterface
             "What's new?"
         ];
 
-        $random = array_rand($greetings);
-        return $greetings[$random];
+        return $greetings[array_rand($greetings)];
     }
 }

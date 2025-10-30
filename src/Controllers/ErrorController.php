@@ -11,7 +11,7 @@ use Twig\Environment as Template;
 
 /**
  * Default error handler.
- * Will catch all uncaught exceptions and display an error page to the user.
+ * Will display an error page to the user for all uncaught exceptions.
  */
 readonly class ErrorController
 {
@@ -64,7 +64,7 @@ readonly class ErrorController
     private function asJSON(FlattenException $exception, bool $details): array
     {
         $data = [
-            'type' => 'https://http.dev/' . $exception->getStatusCode(),
+            'type' => 'about:blank',
             'status' => $exception->getStatusCode(),
             'title' => $exception->getStatusText(),
             'detail' => 'An error occurred when processing the request.'
