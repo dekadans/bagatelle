@@ -33,15 +33,15 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
+    <section>
         <h1>{{ statusCode }} {{ statusText }}</h1>
         <p>An error occurred when processing the request.</p>
-    </div>
+    </section>
 
     {% if details %}
-        <div class="container">
+        <section>
             <h2>Exception Details</h2>
-            <pre>
+            <pre><code>
 {%- for ex in details %}
 <span class="error-type">{{ ex.class }}</span>
 {% if ex.message -%} {{ ex.message }} {%- endif %}
@@ -49,13 +49,13 @@
 
 <span class="error-type">Stack trace:</span>
 {% for trace in ex.trace %}
-    at <span class="file-path">{{ trace.file }}</span>:<span class="line-number">{{ trace.line }}</span>
-        {{ trace.class ~ trace.type ~ trace.function ~ (trace.function ? '()' : '') }}
+at <span class="file-path">{{ trace.file }}</span>:<span class="line-number">{{ trace.line }}</span>
+    {{ trace.class ~ trace.type ~ trace.function ~ (trace.function ? '()' : '') }}
 {% endfor %}
 
 <hr>
 {% endfor %}
-            </pre>
-        </div>
+            </code></pre>
+        </section>
     {% endif %}
 {% endblock %}

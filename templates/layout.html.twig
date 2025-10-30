@@ -21,12 +21,12 @@
             line-height: 1.6;
         }
 
-        .wrapper {
+        main {
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        .container {
+        section {
             background: #ffffff;
             width: 100%;
             padding: 2rem;
@@ -62,7 +62,7 @@
                 padding: 2rem 1rem;
             }
 
-            .container {
+            section {
                 padding: 1.5rem;
             }
 
@@ -80,7 +80,7 @@
                 padding: 1.5rem 1rem;
             }
 
-            .container {
+            section {
                 padding: 1.25rem;
             }
 
@@ -97,8 +97,8 @@
 </head>
 {% endblock %}
 <body>
-<div class="wrapper">
+<main>
     {% block content %}{% endblock %}
-</div>
+</main>
 </body>
 </html>
