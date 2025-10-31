@@ -21,7 +21,7 @@ readonly class ErrorController
 
     function __invoke(Request $request, FlattenException $exception): Response
     {
-        $exceptionDetails = (bool) $_ENV["BAGATELLE_DETAILED_ERRORS"];
+        $exceptionDetails = (bool) $_ENV["ERROR_DETAILS"];
 
         $contentType = $this->negotiateContentType($request);
 

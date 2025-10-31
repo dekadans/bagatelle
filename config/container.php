@@ -4,7 +4,12 @@
  */
 
 use DI\ContainerBuilder;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -25,9 +30,16 @@ $containerBuilder->addDefinitions([
     EventDispatcherInterface::class => autowire(EventDispatcher::class),
     ContractsEventDispatcherInterface::class => get(EventDispatcherInterface::class),
     PsrEventDispatcherInterface::class => get(EventDispatcherInterface::class),
-    Twig::class => function (FileLocatorInterface $locator) {
-        $templateDir = $locator->locate('templates');
-        return new Twig(new TwigFilesystemLoader($templateDir));
+    Twig::class => function () {
+        $cacheDir = __DIR__.'/../'.$_ENV['TWIG_CACHE_DIR'];
+        $templateDir = __DIR__.'/../templates';
+        $options = $_ENV['TWIG_CACHE'] ? ['cache' => $cacheDir] : [];
+        return new Twig(new TwigFilesystemLoader($templateDir), $options);
+    },
+    LoggerInterface::class => function () {
+        $stream = __DIR__.'/../'.$_ENV['LOG_STREAM'];
+        $level = Level::fromName($_ENV['LOG_LEVEL']);
+        return new Logger('default', [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
     }
 ]);
 
@@ -36,5 +48,9 @@ $containerBuilder->addDefinitions([
     \App\Services\Greet\GreetingInterface::class =>
         autowire(\App\Services\Greet\GreetingRandomizer::class)
 ]);
+
+if ($_ENV['DI_CACHE']) {
+    $containerBuilder->enableCompilation(__DIR__.'/../'.$_ENV['DI_CACHE_DIR']);
+}
 
 return $containerBuilder->build();

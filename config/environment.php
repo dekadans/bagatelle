@@ -2,17 +2,13 @@
 
 use Symfony\Component\Dotenv\Dotenv;
 
-$envFile = __DIR__ . '/../.env';
-
-if (!file_exists($envFile)) {
-    die('Error! No .env exists. Create a copy from .env.example.');
-}
-
 $dotenv = new Dotenv();
-$dotenv->load($envFile);
+$dotenv->loadEnv(__DIR__ . '/../.env');
 
-if ($_ENV["BAGATELLE_DETAILED_ERRORS"]) {
+if ($_ENV["ERROR_DETAILS"]) {
     error_reporting(E_ALL & ~E_NOTICE);
 } else {
     error_reporting(0);
 }
+
+date_default_timezone_set($_ENV['TIMEZONE']);

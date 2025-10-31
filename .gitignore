@@ -3,7 +3,9 @@
 /node_modules
 /.idea
 /.vscode
-.env
-*.log
+/cache
+/logs
 .DS_Store
 Thumbs.db
+/.env.local
+/.env.*.local

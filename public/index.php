@@ -6,6 +6,7 @@
 
 use App\Controllers\ErrorController;
 use DI\Container;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,8 @@ $container = require __DIR__ . '/../config/container.php';
 $fileLocator = $container->get(FileLocatorInterface::class);
 /** @var EventDispatcherInterface $dispatcher */
 $dispatcher = $container->get(EventDispatcherInterface::class);
+/** @var LoggerInterface $log */
+$log = $container->get(LoggerInterface::class);
 
 // Create HTTP request object
 $request = Request::createFromGlobals();
@@ -61,8 +64,8 @@ $generator = new UrlGenerator($routes, $requestContext);
 $container->set(UrlGeneratorInterface::class, $generator);
 
 // Listen to kernel events
-$dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack()));
-$dispatcher->addSubscriber(new ErrorListener(ErrorController::class));
+$dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack(), $requestContext, $log));
+$dispatcher->addSubscriber(new ErrorListener(ErrorController::class, $log));
 
 // Set up HTTP kernel and execute request
 $kernel = new HttpKernel($dispatcher, new ContainerControllerResolver($container));
