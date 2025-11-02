@@ -16,21 +16,22 @@ It's named as a contrast to Symfony, with [Wiktionary](https://en.wiktionary.org
 
 ### What's included?
 
-Bagatelle ships with [HTTP processing](https://symfony.com/packages/HttpKernel),
-[routing](https://symfony.com/packages/Routing), [events](https://symfony.com/packages/EventDispatcher)
-and [console application](https://symfony.com/packages/Console) support (all from Symfony)
-as well as templating using [Twig](https://twig.symfony.com/).
-It also bundles a PSR-11 dependency injection container ([PHP-DI](https://php-di.org/))
-and PSR-3 logger ([Monolog](https://seldaek.github.io/monolog/)).
+Bagatelle ships with:
 
-Basic support for [environment variables](https://symfony.com/packages/Dotenv)
-and error handling (HTML and [JSON Problem Details](https://www.rfc-editor.org/rfc/rfc9457.html)) is also implemented.
+- Symfony's [event based](https://symfony.com/packages/EventDispatcher) [HTTP processing](https://symfony.com/packages/HttpKernel) and [routing](https://symfony.com/packages/Routing)
+- [Console application](https://symfony.com/packages/Console) support (also Symfony)
+- Templating using [Twig](https://twig.symfony.com/)
+- [PHP-DI](https://php-di.org/) as dependency injection container
+- [Monolog](https://seldaek.github.io/monolog/) for logging
+
+Additionally, basic error handling is implemented and
+a simple authentication solution is prepared but without any details implemented.
 
 In other words, things that are good to have for most use cases.
 
 ### What's _not_ included?
 
-Everything else. So no databases, no session management, no caching, no validation and no authentication/authorization.
+Everything else. So no databases, no session management, no caching and no validation.
 That's for you to add yourself :)
 
 ### Should I use Bagatelle?
