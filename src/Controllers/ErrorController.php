@@ -52,11 +52,18 @@ readonly class ErrorController
         return $acceptable[0];
     }
 
+    private function getUserMessage(FlattenException $exception): string
+    {
+        return $exception->getStatusCode() < 500
+            ? $exception->getMessage()
+            : 'An error occurred when processing the request.';
+    }
+
     private function asHTML(FlattenException $exception, bool $details): string
     {
         return $this->view->render('error.html.twig', [
-            'statusCode' => $exception->getStatusCode(),
-            'statusText' => $exception->getStatusText(),
+            'title' => $exception->getStatusCode() . ' ' . $exception->getStatusText(),
+            'message' => $this->getUserMessage($exception),
             'details' => $details ? $exception->toArray() : null
         ]);
     }
@@ -67,7 +74,7 @@ readonly class ErrorController
             'type' => 'about:blank',
             'status' => $exception->getStatusCode(),
             'title' => $exception->getStatusText(),
-            'detail' => 'An error occurred when processing the request.'
+            'detail' => $this->getUserMessage($exception)
         ];
 
         if ($details) {

@@ -34,8 +34,8 @@
 
 {% block content %}
     <section>
-        <h1>{{ statusCode }} {{ statusText }}</h1>
-        <p>An error occurred when processing the request.</p>
+        <h1>{{ title }}</h1>
+        <p>{{ message }}</p>
     </section>
 
     {% if details %}

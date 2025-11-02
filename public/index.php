@@ -5,6 +5,7 @@
  */
 
 use App\Controllers\ErrorController;
+use App\Services\Auth\RequiresAuth;
 use DI\Container;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\FileLocatorInterface;
@@ -47,10 +48,16 @@ $attributeControllerLoader = new class() extends AttributeClassLoader {
         \ReflectionMethod $method,
         object $attr
     ): void {
+        // Set the controller class/method that should be called.
         $controller = $method->getName() === '__invoke'
             ? $class->getName()
             : $class->getName().'::'.$method->getName();
         $route->setDefault('_controller', $controller);
+
+        // Set authentication if class or method has attribute.
+        $requiresAuth = count($class->getAttributes(RequiresAuth::class))
+            || count($method->getAttributes(RequiresAuth::class));
+        $route->setDefault('_auth', $requiresAuth);
     }
 };
 
@@ -64,8 +71,13 @@ $generator = new UrlGenerator($routes, $requestContext);
 $container->set(UrlGeneratorInterface::class, $generator);
 
 // Listen to kernel events
-$dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack(), $requestContext, $log));
+$dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack()));
 $dispatcher->addSubscriber(new ErrorListener(ErrorController::class, $log));
+
+// Add custom event subscribers
+foreach (require __DIR__ . '/../config/subscribers.php' as $subscriber) {
+    $dispatcher->addSubscriber($container->get($subscriber));
+}
 
 // Set up HTTP kernel and execute request
 $kernel = new HttpKernel($dispatcher, new ContainerControllerResolver($container));
