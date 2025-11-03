@@ -25,7 +25,7 @@ Bagatelle ships with:
 - [PHP-DI](https://php-di.org/) as dependency injection container
 - [Monolog](https://seldaek.github.io/monolog/) for logging
 - Basic exception handling
-- Simple authentication solution is prepared unimplemented
+- Simple authentication solution is prepared but unimplemented
 
 In other words, things that are good to have for most use cases.
 
