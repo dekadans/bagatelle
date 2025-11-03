@@ -19,19 +19,19 @@ It's named as a contrast to Symfony, with [Wiktionary](https://en.wiktionary.org
 Bagatelle ships with:
 
 - Symfony's [event based](https://symfony.com/packages/EventDispatcher) [HTTP processing](https://symfony.com/packages/HttpKernel) and [routing](https://symfony.com/packages/Routing)
+- HTTP interaction using either [HttpFoundation](https://symfony.com/packages/HttpFoundation) or [PSR-7](https://www.php-fig.org/psr/psr-7/)
 - [Console application](https://symfony.com/packages/Console) support (also Symfony)
 - Templating using [Twig](https://twig.symfony.com/)
 - [PHP-DI](https://php-di.org/) as dependency injection container
 - [Monolog](https://seldaek.github.io/monolog/) for logging
-
-Additionally, basic error handling is implemented and
-a simple authentication solution is prepared but without any details implemented.
+- Basic exception handling
+- Simple authentication solution is prepared unimplemented
 
 In other words, things that are good to have for most use cases.
 
 ### What's _not_ included?
 
-Everything else. So no databases, no session management, no caching and no validation.
+Everything else. So no databases, no validation, no session management and no caching.
 That's for you to add yourself :)
 
 ### Should I use Bagatelle?

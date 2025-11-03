@@ -8,8 +8,17 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ServerRequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
+use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -18,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEvent
 use Twig\Environment as Twig;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
 use function DI\autowire;
+use function DI\create;
 use function DI\get;
 
 $containerBuilder = new ContainerBuilder();
@@ -27,15 +37,25 @@ $containerBuilder->addDefinitions([
     FileLocatorInterface::class => function() {
         return new FileLocator(__DIR__.'/..');
     },
-    EventDispatcherInterface::class => autowire(EventDispatcher::class),
+    // Event Dispatcher
+    EventDispatcherInterface::class => create(EventDispatcher::class),
     ContractsEventDispatcherInterface::class => get(EventDispatcherInterface::class),
     PsrEventDispatcherInterface::class => get(EventDispatcherInterface::class),
+    // PSR-7, PSR-17 and HttpFoundation bridge
+    ServerRequestFactoryInterface::class => create(Psr17Factory::class),
+    StreamFactoryInterface::class => create(Psr17Factory::class),
+    UploadedFileFactoryInterface::class => create(Psr17Factory::class),
+    ResponseFactoryInterface::class => create(Psr17Factory::class),
+    HttpMessageFactoryInterface::class => autowire(PsrHttpFactory::class),
+    HttpFoundationFactoryInterface::class => autowire(HttpFoundationFactory::class),
+    // Templates
     Twig::class => function () {
         $cacheDir = __DIR__.'/../'.$_ENV['TWIG_CACHE_DIR'];
         $templateDir = __DIR__.'/../templates';
         $options = $_ENV['TWIG_CACHE'] ? ['cache' => $cacheDir] : [];
         return new Twig(new TwigFilesystemLoader($templateDir), $options);
     },
+    // Logging
     LoggerInterface::class => function () {
         $stream = __DIR__.'/../'.$_ENV['LOG_STREAM'];
         $level = Level::fromName($_ENV['LOG_LEVEL']);

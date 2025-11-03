@@ -8,10 +8,14 @@ use App\Controllers\ErrorController;
 use App\Services\Auth\RequiresAuth;
 use DI\Container;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\PsrHttpMessage\ArgumentValueResolver\PsrServerRequestResolver;
+use Symfony\Bridge\PsrHttpMessage\EventListener\PsrResponseListener;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\EventListener\ErrorListener;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
@@ -73,14 +77,22 @@ $container->set(UrlGeneratorInterface::class, $generator);
 // Listen to kernel events
 $dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack()));
 $dispatcher->addSubscriber(new ErrorListener(ErrorController::class, $log));
+$dispatcher->addSubscriber($container->get(PsrResponseListener::class));
 
 // Add custom event subscribers
 foreach (require __DIR__ . '/../config/subscribers.php' as $subscriber) {
     $dispatcher->addSubscriber($container->get($subscriber));
 }
 
+$controllerResolver = new ContainerControllerResolver($container);
+$argumentValueResolvers = array_merge(
+    [new BackedEnumValueResolver(), $container->get(PsrServerRequestResolver::class)],
+    ArgumentResolver::getDefaultArgumentValueResolvers()
+);
+$argumentResolver = new ArgumentResolver(null, $argumentValueResolvers);
+
 // Set up HTTP kernel and execute request
-$kernel = new HttpKernel($dispatcher, new ContainerControllerResolver($container));
+$kernel = new HttpKernel($dispatcher, $controllerResolver, new RequestStack(), $argumentResolver);
 
 $response = $kernel->handle($request);
 $response->prepare($request);
