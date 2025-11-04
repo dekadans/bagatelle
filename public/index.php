@@ -59,9 +59,9 @@ $attributeControllerLoader = new class() extends AttributeClassLoader {
         $route->setDefault('_controller', $controller);
 
         // Set authentication if class or method has attribute.
-        $requiresAuth = count($class->getAttributes(RequiresAuth::class))
-            || count($method->getAttributes(RequiresAuth::class));
-        $route->setDefault('_auth', $requiresAuth);
+        $requiresAuth = $method->getAttributes(RequiresAuth::class, ReflectionAttribute::IS_INSTANCEOF)
+            ?: $class->getAttributes(RequiresAuth::class, ReflectionAttribute::IS_INSTANCEOF);
+        $route->setDefault(RequiresAuth::REQUEST_ATTRIBUTE, (bool) $requiresAuth);
     }
 };
 
