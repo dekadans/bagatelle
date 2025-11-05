@@ -1,7 +1,9 @@
 <?php
 
-use App\Commands\GreetingCommand;
-
+/*
+ * Add all your console commands here.
+ * Note that they must define a name using the AsCommand attribute.
+ */
 return [
-    GreetingCommand::NAME => GreetingCommand::class
+    \App\Commands\GreetingCommand::class
 ];

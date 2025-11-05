@@ -18,14 +18,17 @@ It's named as a contrast to Symfony, with [Wiktionary](https://en.wiktionary.org
 
 Bagatelle ships with:
 
-- Symfony's [event based](https://symfony.com/packages/EventDispatcher) [HTTP processing](https://symfony.com/packages/HttpKernel) and [routing](https://symfony.com/packages/Routing)
-- HTTP interaction using either [HttpFoundation](https://symfony.com/packages/HttpFoundation) or [PSR-7](https://www.php-fig.org/psr/psr-7/)
-- [Console application](https://symfony.com/packages/Console) support (also Symfony)
+- Core Symfony components:
+  - [HttpKernel](https://symfony.com/packages/HttpKernel)
+  - [EventDispatcher](https://symfony.com/packages/EventDispatcher)
+  - [Routing](https://symfony.com/packages/Routing)
+  - [Console](https://symfony.com/packages/Console)
+- Both [HttpFoundation](https://symfony.com/packages/HttpFoundation) and [PSR-7](https://www.php-fig.org/psr/psr-7/) support for HTTP messages
 - Templating using [Twig](https://twig.symfony.com/)
-- [PHP-DI](https://php-di.org/) as dependency injection container
-- [Monolog](https://seldaek.github.io/monolog/) for logging
+- [PHP-DI](https://php-di.org/) as PSR-11 dependency injection container
+- [Monolog](https://seldaek.github.io/monolog/) for PSR-3 logging
 - Basic exception handling
-- Simple authentication solution is prepared but unimplemented
+- Simple authentication boilerplate
 
 In other words, things that are good to have for most use cases.
 
