@@ -2,7 +2,7 @@
 
 namespace App\Commands;
 
-use App\Services\Greet\GreetingInterface;
+use App\Services\Core\GreetingInterface;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

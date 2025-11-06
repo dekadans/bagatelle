@@ -3,7 +3,8 @@
  * Configures and returns a PSR-11 compliant dependency injection container.
  */
 
-use App\Services\Greet\GreetingInterface;
+use App\Services\Core\AttributeControllerLoader;
+use App\Services\Core\GreetingInterface;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
@@ -24,6 +25,9 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Loader\AttributeDirectoryLoader;
+use Symfony\Component\Routing\Router;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcherInterface;
 use Twig\Environment as Twig;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -35,9 +39,6 @@ $containerBuilder = new ContainerBuilder();
 
 // Core dependencies
 $containerBuilder->addDefinitions([
-    FileLocatorInterface::class => function() {
-        return new FileLocator(__DIR__.'/..');
-    },
     // Event Dispatcher
     EventDispatcherInterface::class => create(EventDispatcher::class),
     ContractsEventDispatcherInterface::class => get(EventDispatcherInterface::class),
@@ -58,10 +59,24 @@ $containerBuilder->addDefinitions([
     },
     // Logging
     LoggerInterface::class => function () {
-        $stream = __DIR__.'/../'.$_ENV['LOG_STREAM'];
+        $stream = $_ENV['LOG_STREAM'];
+        if ($_ENV['LOG_PATH_RELATIVE'])  {
+            $stream = __DIR__.'/../'.$stream;
+        }
         $level = Level::fromName($_ENV['LOG_LEVEL']);
         return new Logger('default', [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
-    }
+    },
+    // Routing
+    FileLocatorInterface::class => function() {
+        return new FileLocator(__DIR__.'/..');
+    },
+    Router::class => function (FileLocatorInterface $fileLocator) {
+        $loader = new AttributeDirectoryLoader($fileLocator, new AttributeControllerLoader());
+        $cacheDirectory = __DIR__.'/../'.$_ENV['ROUTING_CACHE_DIR'];
+        $options = $_ENV['ROUTING_CACHE'] ? ['cache_dir' => $cacheDirectory] : [];
+        return new Router($loader, 'src/Controllers', $options);
+    },
+    UrlGeneratorInterface::class => get(Router::class)
 ]);
 
 // Example service. Feel free to remove this :)
