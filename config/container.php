@@ -3,6 +3,7 @@
  * Configures and returns a PSR-11 compliant dependency injection container.
  */
 
+use App\Commands\GreetingCommand;
 use App\Services\Core\AttributeControllerLoader;
 use App\Services\Core\GreetingInterface;
 use DI\ContainerBuilder;
@@ -11,6 +12,7 @@ use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -24,6 +26,9 @@ use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\FileLocatorInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
+use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -39,7 +44,63 @@ use function DI\get;
 
 $containerBuilder = new ContainerBuilder();
 
-// Core dependencies
+/*
+ *
+ * Console commands. Add your command implementation classes here.
+ * NOTE: Only add class names, not container references or instances.
+ *
+ */
+$containerBuilder->addDefinitions([
+    'commands' => [
+        GreetingCommand::class
+    ]
+]);
+
+/*
+ *
+ * Logger configuration.
+ *
+ */
+$containerBuilder->addDefinitions([
+    LoggerInterface::class => function () {
+        $stream = $_ENV['LOG_STREAM'];
+        if ($_ENV['LOG_PATH_RELATIVE'])  {
+            $stream = __DIR__.'/../'.$stream;
+        }
+        $level = Level::fromName($_ENV['LOG_LEVEL']);
+        return new Logger($_ENV['LOG_NAME'], [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
+    }
+]);
+
+/*
+ *
+ * Example service.
+ * Feel free to remove this :)
+ *
+ */
+$containerBuilder->addDefinitions([
+    GreetingInterface::class => function () {
+        return new class () implements GreetingInterface
+        {
+            public function greet(): string
+            {
+                $greetings = [
+                    'Hello!', 'Hi!', 'Hey!', 'Yo!', 'Hiya!',
+                    "How's everything?", 'How are you?', "How's it going?", "What's up?", 'Howdy!',
+                    'Greetings!', 'Welcome!', 'Nice to see you!', 'Long time no see!', 'How have you been?',
+                    'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?"
+                ];
+                return $greetings[array_rand($greetings)];
+            }
+        };
+    }
+]);
+
+/*
+ *
+ * Core dependencies.
+ *
+ */
 $containerBuilder->addDefinitions([
     // Event Dispatcher
     EventDispatcherInterface::class => create(EventDispatcher::class),
@@ -69,15 +130,6 @@ $containerBuilder->addDefinitions([
         $options = $_ENV['TWIG_CACHE'] ? ['cache' => $cacheDir] : [];
         return new Twig(new TwigFilesystemLoader($templateDir), $options);
     },
-    // Logging
-    LoggerInterface::class => function () {
-        $stream = $_ENV['LOG_STREAM'];
-        if ($_ENV['LOG_PATH_RELATIVE'])  {
-            $stream = __DIR__.'/../'.$stream;
-        }
-        $level = Level::fromName($_ENV['LOG_LEVEL']);
-        return new Logger('default', [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
-    },
     // Routing
     FileLocatorInterface::class => function() {
         return new FileLocator(__DIR__.'/..');
@@ -88,25 +140,18 @@ $containerBuilder->addDefinitions([
         $options = $_ENV['ROUTING_CACHE'] ? ['cache_dir' => $cacheDirectory] : [];
         return new Router($loader, 'src/Controllers', $options);
     },
-    UrlGeneratorInterface::class => get(RouterInterface::class)
-]);
-
-// Example service. Feel free to remove this :)
-$containerBuilder->addDefinitions([
-    GreetingInterface::class => function () {
-        return new class () implements GreetingInterface
-        {
-            public function greet(): string
-            {
-                $greetings = [
-                    'Hello!', 'Hi!', 'Hey!', 'Yo!', 'Hiya!',
-                    "How's everything?", 'How are you?', "How's it going?", "What's up?", 'Howdy!',
-                    'Greetings!', 'Welcome!', 'Nice to see you!', 'Long time no see!', 'How have you been?',
-                    'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?"
-                ];
-                return $greetings[array_rand($greetings)];
+    UrlGeneratorInterface::class => get(RouterInterface::class),
+    // Console
+    CommandLoaderInterface::class => function (ContainerInterface $c) {
+        $commandMap = [];
+        foreach ($c->get('commands') as $commandClass) {
+            $commandAttribute = (new ReflectionClass($commandClass))->getAttributes(AsCommand::class);
+            if ($commandAttribute) {
+                $name = $commandAttribute[0]->newInstance()->name;
+                $commandMap[$name] = $commandClass;
             }
-        };
+        }
+        return new ContainerCommandLoader($c, $commandMap);
     }
 ]);
 
