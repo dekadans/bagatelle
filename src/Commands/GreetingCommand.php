@@ -28,7 +28,6 @@ class GreetingCommand extends Command
         for ($i = 0; $i < $number; $i++) {
             $io->text($this->greeting->greet());
         }
-
         return Command::SUCCESS;
     }
 }

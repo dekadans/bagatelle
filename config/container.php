@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\PsrHttpMessage\EventListener\PsrResponseListener;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
@@ -28,6 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Loader\AttributeDirectoryLoader;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcherInterface;
 use Twig\Environment as Twig;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -48,8 +50,18 @@ $containerBuilder->addDefinitions([
     StreamFactoryInterface::class => create(Psr17Factory::class),
     UploadedFileFactoryInterface::class => create(Psr17Factory::class),
     ResponseFactoryInterface::class => create(Psr17Factory::class),
-    HttpMessageFactoryInterface::class => autowire(PsrHttpFactory::class),
+    HttpMessageFactoryInterface::class => create(PsrHttpFactory::class)
+        ->constructor(
+            get(ServerRequestFactoryInterface::class),
+            get(StreamFactoryInterface::class),
+            get(UploadedFileFactoryInterface::class),
+            get(ResponseFactoryInterface::class)
+        ),
     HttpFoundationFactoryInterface::class => autowire(HttpFoundationFactory::class),
+    PsrResponseListener::class => create(PsrResponseListener::class)
+        ->constructor(
+            get(HttpFoundationFactoryInterface::class)
+        ),
     // Templates
     Twig::class => function () {
         $cacheDir = __DIR__.'/../'.$_ENV['TWIG_CACHE_DIR'];
@@ -70,13 +82,13 @@ $containerBuilder->addDefinitions([
     FileLocatorInterface::class => function() {
         return new FileLocator(__DIR__.'/..');
     },
-    Router::class => function (FileLocatorInterface $fileLocator) {
+    RouterInterface::class => function (FileLocatorInterface $fileLocator) {
         $loader = new AttributeDirectoryLoader($fileLocator, new AttributeControllerLoader());
         $cacheDirectory = __DIR__.'/../'.$_ENV['ROUTING_CACHE_DIR'];
         $options = $_ENV['ROUTING_CACHE'] ? ['cache_dir' => $cacheDirectory] : [];
         return new Router($loader, 'src/Controllers', $options);
     },
-    UrlGeneratorInterface::class => get(Router::class)
+    UrlGeneratorInterface::class => get(RouterInterface::class)
 ]);
 
 // Example service. Feel free to remove this :)
