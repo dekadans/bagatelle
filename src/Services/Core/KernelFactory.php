@@ -2,11 +2,8 @@
 
 namespace App\Services\Core;
 
-use App\Controllers\ErrorController;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bridge\PsrHttpMessage\ArgumentValueResolver\PsrServerRequestResolver;
-use Symfony\Bridge\PsrHttpMessage\EventListener\PsrResponseListener;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
@@ -14,24 +11,16 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueReso
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
-use Symfony\Component\HttpKernel\EventListener\ErrorListener;
-use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\HttpKernel\HttpKernel;
-use Symfony\Component\Routing\RouterInterface;
 
 class KernelFactory
 {
     private EventDispatcherInterface $dispatcher;
-    private LoggerInterface $logger;
-    private RouterInterface $router;
 
     public function __construct(
-        readonly private ContainerInterface $container,
-        readonly private array $customEventSubscribers = []
+        readonly private ContainerInterface $container
     ) {
         $this->dispatcher = $this->container->get(EventDispatcherInterface::class);
-        $this->logger = $this->container->get(LoggerInterface::class);
-        $this->router = $this->container->get(RouterInterface::class);
     }
 
     public function make(): HttpKernel
@@ -46,12 +35,13 @@ class KernelFactory
 
     private function subscribe(): void
     {
-        $this->dispatcher->addSubscriber(new RouterListener($this->router, new RequestStack()));
-        $this->dispatcher->addSubscriber(new ErrorListener(ErrorController::class, $this->logger));
-        $this->dispatcher->addSubscriber(new PsrResponseListener());
+        $subscribers = array_merge(
+            $this->container->get('bagatelle.http.subscribers'),
+            $this->container->get('app.http.subscribers')
+        );
 
-        foreach ($this->customEventSubscribers as $subscriber) {
-            $this->dispatcher->addSubscriber($this->container->get($subscriber));
+        foreach ($subscribers as $subscriber) {
+            $this->dispatcher->addSubscriber($subscriber);
         }
     }
 

@@ -13,10 +13,8 @@ require_once __DIR__ . '/../config/environment.php';
 
 /** @var ContainerInterface $container */
 $container = require __DIR__ . '/../config/container.php';
-/** @var class-string[] $subscribers */
-$subscribers = require __DIR__ . '/../config/subscribers.php';
 
-$factory = new KernelFactory($container, $subscribers);
+$factory = new KernelFactory($container);
 $kernel = $factory->make();
 
 $request = Request::createFromGlobals();

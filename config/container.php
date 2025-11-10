@@ -4,6 +4,8 @@
  */
 
 use App\Commands\GreetingCommand;
+use App\Controllers\ErrorController;
+use App\Services\Auth\AuthenticationSubscriber;
 use App\Services\Core\AttributeControllerLoader;
 use App\Services\Core\GreetingInterface;
 use DI\ContainerBuilder;
@@ -29,8 +31,12 @@ use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
+use Symfony\Component\Console\EventListener\ErrorListener as ConsoleErrorListener;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\EventListener\ErrorListener as HttpErrorListener;
+use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Loader\AttributeDirectoryLoader;
 use Symfony\Component\Routing\Router;
@@ -46,23 +52,29 @@ $containerBuilder = new ContainerBuilder();
 
 /*
  *
- * Console commands. Add your command implementation classes here.
- * NOTE: Only add class names, not container references or instances.
+ * Application components.
  *
  */
 $containerBuilder->addDefinitions([
-    'commands' => [
-        GreetingCommand::class
-    ]
-]);
+    // HTTP request event subscribers.
+    'app.http.subscribers' => [
+        get(AuthenticationSubscriber::class),
+    ],
 
-/*
- *
- * Logger configuration.
- *
- */
-$containerBuilder->addDefinitions([
-    LoggerInterface::class => function () {
+    // Console commands. Add your command implementation classes here.
+    // NOTE: Only add class names, not container references or instances.
+    // The command loader will resolve when needed.
+    'app.console.commands' => [
+        GreetingCommand::class
+    ],
+
+    // Console application event subscribers.
+    'app.console.subscribers' => [
+
+    ],
+
+    // Logging configuration
+    'app.logger' => function () {
         $stream = $_ENV['LOG_STREAM'];
         if ($_ENV['LOG_PATH_RELATIVE'])  {
             $stream = __DIR__.'/../'.$stream;
@@ -106,6 +118,8 @@ $containerBuilder->addDefinitions([
     EventDispatcherInterface::class => create(EventDispatcher::class),
     ContractsEventDispatcherInterface::class => get(EventDispatcherInterface::class),
     PsrEventDispatcherInterface::class => get(EventDispatcherInterface::class),
+    // PSR-3 Logger
+    LoggerInterface::class => get('app.logger'),
     // PSR-7, PSR-17 and HttpFoundation bridge
     ServerRequestFactoryInterface::class => create(Psr17Factory::class),
     StreamFactoryInterface::class => create(Psr17Factory::class),
@@ -141,10 +155,24 @@ $containerBuilder->addDefinitions([
         return new Router($loader, 'src/Controllers', $options);
     },
     UrlGeneratorInterface::class => get(RouterInterface::class),
+    // HTTP kernel
+    'bagatelle.http.subscribers' => [
+        create(RouterListener::class)
+            ->constructor(
+                get(RouterInterface::class),
+                create(RequestStack::class)
+            ),
+        create(HttpErrorListener::class)
+            ->constructor(
+                ErrorController::class,
+                get(LoggerInterface::class)
+            ),
+        get(PsrResponseListener::class)
+    ],
     // Console
     CommandLoaderInterface::class => function (ContainerInterface $c) {
         $commandMap = [];
-        foreach ($c->get('commands') as $commandClass) {
+        foreach ($c->get('app.console.commands') as $commandClass) {
             $commandAttribute = (new ReflectionClass($commandClass))->getAttributes(AsCommand::class);
             if ($commandAttribute) {
                 $name = $commandAttribute[0]->newInstance()->name;
@@ -152,7 +180,11 @@ $containerBuilder->addDefinitions([
             }
         }
         return new ContainerCommandLoader($c, $commandMap);
-    }
+    },
+    'bagatelle.console.subscribers' => [
+        create(ConsoleErrorListener::class)
+            ->constructor(get(LoggerInterface::class))
+    ]
 ]);
 
 if ($_ENV['DI_CACHE']) {
