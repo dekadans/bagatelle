@@ -4,7 +4,7 @@
  * Uses Symfony HttpKernel and its event-based architecture.
  */
 
-use App\Services\Core\KernelFactory;
+use App\Services\ApplicationFactory;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -14,8 +14,8 @@ require_once __DIR__ . '/../config/environment.php';
 /** @var ContainerInterface $container */
 $container = require __DIR__ . '/../config/container.php';
 
-$factory = new KernelFactory($container);
-$kernel = $factory->make();
+$factory = new ApplicationFactory($container);
+$kernel = $factory->makeHttp();
 
 $request = Request::createFromGlobals();
 

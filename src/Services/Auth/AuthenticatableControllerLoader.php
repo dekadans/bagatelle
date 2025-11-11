@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Services\Core;
+namespace App\Services\Auth;
 
-use App\Services\Auth\RequiresAuth;
 use Symfony\Component\Routing\Loader\AttributeClassLoader;
 use Symfony\Component\Routing\Route;
 
-class AttributeControllerLoader extends AttributeClassLoader
+class AuthenticatableControllerLoader extends AttributeClassLoader
 {
     protected function configureRoute(Route $route, \ReflectionClass $class, \ReflectionMethod $method, object $attr): void
     {

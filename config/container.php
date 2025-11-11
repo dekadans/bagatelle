@@ -5,12 +5,11 @@
 
 use App\Commands\GreetingCommand;
 use App\Controllers\ErrorController;
+use App\Services\Auth\AuthenticatableControllerLoader;
 use App\Services\Auth\AuthenticationSubscriber;
-use App\Services\Core\AttributeControllerLoader;
-use App\Services\Core\GreetingInterface;
+use App\Services\GreetingInterface;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
-use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -20,7 +19,9 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
+use Psr\Http\Message\UriFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\PsrHttpMessage\ArgumentValueResolver\PsrServerRequestResolver;
 use Symfony\Bridge\PsrHttpMessage\EventListener\PsrResponseListener;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -35,6 +36,9 @@ use Symfony\Component\Console\EventListener\ErrorListener as ConsoleErrorListene
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\EventListener\ErrorListener as HttpErrorListener;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -62,25 +66,23 @@ $containerBuilder->addDefinitions([
     ],
 
     // Console commands. Add your command implementation classes here.
-    // NOTE: Only add class names, not container references or instances.
-    // The command loader will resolve when needed.
     'app.console.commands' => [
+        // NOTE: Only add class names, not container references or instances.
         GreetingCommand::class
     ],
 
     // Console application event subscribers.
     'app.console.subscribers' => [
-
+        // Add subscribers through container references, for example:
+        // get(App\Events\SomeEventSubscriber:class)
     ],
 
     // Logging configuration
-    'app.logger' => function () {
-        $stream = $_ENV['LOG_STREAM'];
-        if ($_ENV['LOG_PATH_RELATIVE'])  {
-            $stream = __DIR__.'/../'.$stream;
-        }
-        $level = Level::fromName($_ENV['LOG_LEVEL']);
-        return new Logger($_ENV['LOG_NAME'], [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
+    // Factory method that returns a PSR-3 compliant logging implementation.
+    'app.logger.default' => function (ContainerInterface $c) {
+        $stream = $c->get('bagatelle.logger.stream');
+        $level = $c->get('bagatelle.logger.level');
+        return new Logger('default', [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
     }
 ]);
 
@@ -118,13 +120,29 @@ $containerBuilder->addDefinitions([
     EventDispatcherInterface::class => create(EventDispatcher::class),
     ContractsEventDispatcherInterface::class => get(EventDispatcherInterface::class),
     PsrEventDispatcherInterface::class => get(EventDispatcherInterface::class),
+
     // PSR-3 Logger
-    LoggerInterface::class => get('app.logger'),
+    'bagatelle.logger.stream' => function() {
+        $envPath = !empty($_ENV['LOG_STREAM']) ? $_ENV['LOG_STREAM'] : 'logs/default.log';
+        if (str_contains($envPath, '://')) {
+            return $envPath;
+        }
+        if ($envPath[0] !== '/') {
+            $envPath = __DIR__.'/../'.$envPath;
+        }
+        return 'file://' . realpath($envPath);
+    },
+    'bagatelle.logger.level' => function () {
+        return !empty($_ENV['LOG_LEVEL']) ? $_ENV['LOG_LEVEL'] : 'critical';
+    },
+    LoggerInterface::class => get('app.logger.default'),
+
     // PSR-7, PSR-17 and HttpFoundation bridge
     ServerRequestFactoryInterface::class => create(Psr17Factory::class),
     StreamFactoryInterface::class => create(Psr17Factory::class),
     UploadedFileFactoryInterface::class => create(Psr17Factory::class),
     ResponseFactoryInterface::class => create(Psr17Factory::class),
+    UriFactoryInterface::class => create(Psr17Factory::class),
     HttpMessageFactoryInterface::class => create(PsrHttpFactory::class)
         ->constructor(
             get(ServerRequestFactoryInterface::class),
@@ -137,6 +155,7 @@ $containerBuilder->addDefinitions([
         ->constructor(
             get(HttpFoundationFactoryInterface::class)
         ),
+
     // Templates
     Twig::class => function () {
         $cacheDir = __DIR__.'/../'.$_ENV['TWIG_CACHE_DIR'];
@@ -144,17 +163,19 @@ $containerBuilder->addDefinitions([
         $options = $_ENV['TWIG_CACHE'] ? ['cache' => $cacheDir] : [];
         return new Twig(new TwigFilesystemLoader($templateDir), $options);
     },
+
     // Routing
     FileLocatorInterface::class => function() {
         return new FileLocator(__DIR__.'/..');
     },
     RouterInterface::class => function (FileLocatorInterface $fileLocator) {
-        $loader = new AttributeDirectoryLoader($fileLocator, new AttributeControllerLoader());
+        $loader = new AttributeDirectoryLoader($fileLocator, new AuthenticatableControllerLoader());
         $cacheDirectory = __DIR__.'/../'.$_ENV['ROUTING_CACHE_DIR'];
         $options = $_ENV['ROUTING_CACHE'] ? ['cache_dir' => $cacheDirectory] : [];
         return new Router($loader, 'src/Controllers', $options);
     },
     UrlGeneratorInterface::class => get(RouterInterface::class),
+
     // HTTP kernel
     'bagatelle.http.subscribers' => [
         create(RouterListener::class)
@@ -169,6 +190,16 @@ $containerBuilder->addDefinitions([
             ),
         get(PsrResponseListener::class)
     ],
+    ArgumentResolverInterface::class => function (ContainerInterface $c) {
+        $enumResolver = $c->get(BackedEnumValueResolver::class);
+        $psrRequestResolver = $c->get(PsrServerRequestResolver::class);
+        $resolvers = array_merge(
+            [$enumResolver, $psrRequestResolver],
+            ArgumentResolver::getDefaultArgumentValueResolvers()
+        );
+        return new ArgumentResolver(argumentValueResolvers: $resolvers);
+    },
+
     // Console
     CommandLoaderInterface::class => function (ContainerInterface $c) {
         $commandMap = [];

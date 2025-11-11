@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Core;
+namespace App\Services;
 
 /**
  * A simple service interface that's used in the default Bagatelle welcome page and example console command.
