@@ -3,8 +3,7 @@
 /node_modules
 /.idea
 /.vscode
-/cache
-/logs
+/var
 .DS_Store
 Thumbs.db
 /.env.local

@@ -128,9 +128,9 @@ $containerBuilder->addDefinitions([
             return $envPath;
         }
         if ($envPath[0] !== '/') {
-            $envPath = __DIR__.'/../'.$envPath;
+            $envPath = dirname(__DIR__).'/'.$envPath;
         }
-        return 'file://' . realpath($envPath);
+        return 'file://' . $envPath;
     },
     'bagatelle.logger.level' => function () {
         return !empty($_ENV['LOG_LEVEL']) ? $_ENV['LOG_LEVEL'] : 'critical';
