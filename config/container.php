@@ -80,8 +80,8 @@ $containerBuilder->addDefinitions([
     // Logging configuration
     // Factory method that returns a PSR-3 compliant logging implementation.
     'app.logger.default' => function (ContainerInterface $c) {
-        $stream = $c->get('bagatelle.logger.stream');
-        $level = $c->get('bagatelle.logger.level');
+        $stream = $c->get('bagatelle.logger.stream'); // Normalized stream URI from LOG_STREAM env var
+        $level = $c->get('bagatelle.logger.level'); // Log level from LOG_LEVEL env var (if available)
         return new Logger('default', [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
     }
 ]);
@@ -123,7 +123,7 @@ $containerBuilder->addDefinitions([
 
     // PSR-3 Logger
     'bagatelle.logger.stream' => function() {
-        $envPath = !empty($_ENV['LOG_STREAM']) ? $_ENV['LOG_STREAM'] : 'logs/default.log';
+        $envPath = !empty($_ENV['LOG_STREAM']) ? $_ENV['LOG_STREAM'] : 'var/log/default.log';
         if (str_contains($envPath, '://')) {
             return $envPath;
         }
@@ -204,7 +204,7 @@ $containerBuilder->addDefinitions([
     CommandLoaderInterface::class => function (ContainerInterface $c) {
         $commandMap = [];
         foreach ($c->get('app.console.commands') as $commandClass) {
-            $commandAttribute = (new ReflectionClass($commandClass))->getAttributes(AsCommand::class);
+            $commandAttribute = new ReflectionClass($commandClass)->getAttributes(AsCommand::class);
             if ($commandAttribute) {
                 $name = $commandAttribute[0]->newInstance()->name;
                 $commandMap[$name] = $commandClass;

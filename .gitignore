@@ -6,5 +6,4 @@
 /var
 .DS_Store
 Thumbs.db
-/.env.local
-/.env.*.local
+/.env
