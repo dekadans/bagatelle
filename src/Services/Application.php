@@ -5,6 +5,7 @@ namespace App\Services;
 use Dotenv\Dotenv;
 use Dotenv\Exception\InvalidPathException;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -21,6 +22,7 @@ class Application
 {
     private ContainerInterface $container;
     private EventDispatcherInterface $dispatcher;
+    private LoggerInterface $logger;
 
     private(set) \Closure $console {
         get {
@@ -51,13 +53,29 @@ class Application
             exit();
         }
 
-        // Set some PHP runtime settings
-        error_reporting((E_ALL & ~E_NOTICE) ? $_ENV["ERROR_DETAILS"] : 0);
-        date_default_timezone_set($_ENV['TIMEZONE']);
-
-        // Create container and resolve the event dispatcher
         $this->container = require __DIR__ . '/../../config/container.php';
         $this->dispatcher = $this->container->get(EventDispatcherInterface::class);
+        $this->logger = $this->container->get(LoggerInterface::class);
+
+        date_default_timezone_set($_ENV['TIMEZONE']);
+        error_reporting(E_ALL);
+
+        set_error_handler(function(int $level, string $message, string $file, int $line) {
+            $this->logger->warning("PHP Notice: $message", [
+                'level' => $level,
+                'file' => $file,
+                'line' => $line
+            ]);
+        });
+
+        // HttpKernel and Console generally catch and report all exceptions and errors.
+        // This is for anything happening before or after the main application processing.
+        set_exception_handler(function(\Throwable $ex) {
+            $this->logger->emergency(
+                "Unhandled exception: {$ex->getMessage()}",
+                ['exception' => $ex]
+            );
+        });
     }
 
     /**
@@ -71,7 +89,13 @@ class Application
         $controllerResolver = new ContainerControllerResolver($this->container);
         $argumentResolver = $this->container->get(ArgumentResolverInterface::class);
 
-        $kernel = new HttpKernel($this->dispatcher, $controllerResolver, new RequestStack(), $argumentResolver);
+        $kernel = new HttpKernel(
+            $this->dispatcher,
+            $controllerResolver,
+            new RequestStack(),
+            $argumentResolver,
+            true
+        );
 
         return function() use ($kernel) {
             $request = Request::createFromGlobals();

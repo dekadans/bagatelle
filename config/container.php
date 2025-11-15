@@ -158,9 +158,11 @@ $containerBuilder->addDefinitions([
 
     // Templates
     Twig::class => function () {
-        $cacheDir = __DIR__.'/../'.$_ENV['TWIG_CACHE_DIR'];
+        if (!empty($_ENV['TWIG_CACHE_DIR'])) {
+            $cacheDir = __DIR__.'/../'.$_ENV['TWIG_CACHE_DIR'];
+        }
         $templateDir = __DIR__.'/../templates';
-        $options = $_ENV['TWIG_CACHE'] ? ['cache' => $cacheDir] : [];
+        $options = ['cache' => $cacheDir ?? false];
         return new Twig(new TwigFilesystemLoader($templateDir), $options);
     },
 
@@ -170,8 +172,10 @@ $containerBuilder->addDefinitions([
     },
     RouterInterface::class => function (FileLocatorInterface $fileLocator) {
         $loader = new AttributeDirectoryLoader($fileLocator, new AuthenticatableControllerLoader());
-        $cacheDirectory = __DIR__.'/../'.$_ENV['ROUTING_CACHE_DIR'];
-        $options = $_ENV['ROUTING_CACHE'] ? ['cache_dir' => $cacheDirectory] : [];
+        if (!empty($_ENV['ROUTING_CACHE_DIR'])) {
+            $cacheDirectory = __DIR__.'/../'.$_ENV['ROUTING_CACHE_DIR'];
+        }
+        $options = ['cache_dir' => $cacheDirectory ?? null];
         return new Router($loader, 'src/Controllers', $options);
     },
     UrlGeneratorInterface::class => get(RouterInterface::class),
@@ -218,7 +222,7 @@ $containerBuilder->addDefinitions([
     ]
 ]);
 
-if ($_ENV['DI_CACHE']) {
+if (!empty($_ENV['DI_CACHE_DIR'])) {
     $containerBuilder->enableCompilation(__DIR__.'/../'.$_ENV['DI_CACHE_DIR']);
 }
 

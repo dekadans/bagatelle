@@ -50,7 +50,7 @@
 <span class="error-type">Stack trace:</span>
 {% for trace in ex.trace %}
 at <span class="file-path">{{ trace.file }}</span>:<span class="line-number">{{ trace.line }}</span>
-    {{ trace.class ~ trace.type ~ trace.function ~ (trace.function ? '()' : '') }}
+    {{ trace.function }}
 {% endfor %}
 
 <hr>

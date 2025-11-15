@@ -64,7 +64,7 @@ readonly class ErrorController
         return $this->view->render('error.html.twig', [
             'title' => $exception->getStatusCode() . ' ' . $exception->getStatusText(),
             'message' => $this->getUserMessage($exception),
-            'details' => $details ? $exception->toArray() : null
+            'details' => $details ? $this->getExceptionArray($exception) : null
         ]);
     }
 
@@ -79,24 +79,32 @@ readonly class ErrorController
 
         if ($details) {
             $data['detail'] = $exception->getMessage();
+            $data['exceptions'] = $this->getExceptionArray($exception);
+        }
 
-            $data['exceptions'] = [];
-            foreach ($exception->toArray() as $ex) {
-                $filtered = array_filter(
-                    $ex,
-                    fn($key) => in_array($key, ['class', 'trace']),
-                    ARRAY_FILTER_USE_KEY
-                );
-                $filtered['trace'] = array_map(
-                    fn($tr) => array_filter(
-                        $tr,
-                        fn($key) => in_array($key, ['class', 'type', 'function', 'file', 'line']),
-                        ARRAY_FILTER_USE_KEY
-                    ),
-                    $filtered['trace']
-                );
-                $data['exceptions'][] = $filtered;
-            }
+        return $data;
+    }
+
+    private function getExceptionArray(FlattenException $exception): array
+    {
+        $data = [];
+        foreach ($exception->toArray() as $ex) {
+            $filtered = array_filter(
+                $ex,
+                fn($key) => in_array($key, ['class', 'trace', 'message']),
+                ARRAY_FILTER_USE_KEY
+            );
+            $filtered['trace'] = array_map(
+                function($tr) {
+                    return [
+                        'file' => $tr['file'],
+                        'line' => $tr['line'],
+                        'function' => $tr['class'] . $tr['type'] . $tr['function'] . ($tr['function'] ? '()' : '')
+                    ];
+                },
+                $filtered['trace']
+            );
+            $data[] = $filtered;
         }
 
         return $data;
