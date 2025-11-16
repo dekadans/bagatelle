@@ -52,9 +52,9 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
     public function checkAuthOnRequestEvent(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        $hasAuth = $request->attributes->get(RequiresAuth::REQUEST_ATTRIBUTE, false);
+        $routeSubscribers = $request->attributes->get('_subscribers', []);
 
-        if (!$hasAuth) {
+        if (!in_array(self::class, $routeSubscribers)) {
             return;
         }
 

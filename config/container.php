@@ -5,9 +5,9 @@
 
 use App\Commands\GreetingCommand;
 use App\Controllers\ErrorController;
-use App\Services\Auth\AuthenticatableControllerLoader;
 use App\Services\Auth\AuthenticationSubscriber;
 use App\Services\GreetingInterface;
+use App\Services\Routing\DecoratedControllerLoader;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -171,7 +171,7 @@ $containerBuilder->addDefinitions([
         return new FileLocator(__DIR__.'/..');
     },
     RouterInterface::class => function (FileLocatorInterface $fileLocator) {
-        $loader = new AttributeDirectoryLoader($fileLocator, new AuthenticatableControllerLoader());
+        $loader = new AttributeDirectoryLoader($fileLocator, new DecoratedControllerLoader());
         if (!empty($_ENV['ROUTING_CACHE_DIR'])) {
             $cacheDirectory = __DIR__.'/../'.$_ENV['ROUTING_CACHE_DIR'];
         }

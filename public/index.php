@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\Application;
+use App\Application;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

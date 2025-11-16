@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services\Auth;
+namespace App\Services\Routing;
 
 use Symfony\Component\Routing\Loader\AttributeClassLoader;
 use Symfony\Component\Routing\Route;
 
-class AuthenticatableControllerLoader extends AttributeClassLoader
+class DecoratedControllerLoader extends AttributeClassLoader
 {
     protected function configureRoute(Route $route, \ReflectionClass $class, \ReflectionMethod $method, object $attr): void
     {
         $route->setDefault('_controller', $this->getControllerName($class, $method));
-        $route->setDefault(RequiresAuth::REQUEST_ATTRIBUTE, $this->isProtected($class, $method));
+        $this->runDecorators($route, $class, $method);
     }
 
     private function getControllerName(\ReflectionClass $class, \ReflectionMethod $method): string
@@ -22,8 +22,17 @@ class AuthenticatableControllerLoader extends AttributeClassLoader
         }
     }
 
-    private function isProtected(\ReflectionClass $class, \ReflectionMethod $method): bool
+    private function runDecorators(Route $route, \ReflectionClass $class, \ReflectionMethod $method): void
     {
-        return (bool) ($method->getAttributes(RequiresAuth::class) ?: $class->getAttributes(RequiresAuth::class));
+        $attributes = array_merge(
+            ...array_map(
+                fn ($r) => $r->getAttributes(RouteDecorator::class, \ReflectionAttribute::IS_INSTANCEOF),
+                [$class, $method]
+            )
+        );
+
+        foreach ($attributes as $attribute) {
+            $attribute->newInstance()->decorate($route);
+        }
     }
 }

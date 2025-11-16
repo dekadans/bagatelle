@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App;
 
 use Dotenv\Dotenv;
 use Dotenv\Exception\InvalidPathException;
@@ -44,7 +44,7 @@ class Application
     private function boot(): void
     {
         // Load environment variables
-        $envPath = dirname(__DIR__, 2);
+        $envPath = dirname(__DIR__);
         $env = Dotenv::createImmutable($envPath);
         try {
             $env->load();
@@ -53,7 +53,7 @@ class Application
             exit();
         }
 
-        $this->container = require __DIR__ . '/../../config/container.php';
+        $this->container = require __DIR__ . '/../config/container.php';
         $this->dispatcher = $this->container->get(EventDispatcherInterface::class);
         $this->logger = $this->container->get(LoggerInterface::class);
 
