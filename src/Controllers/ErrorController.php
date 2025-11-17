@@ -17,9 +17,10 @@ readonly class ErrorController
 {
     public function __construct(
         private Template $view
-    ) {}
+    ) {
+    }
 
-    function __invoke(Request $request, FlattenException $exception): Response
+    public function __invoke(Request $request, FlattenException $exception): Response
     {
         $exceptionDetails = (bool) $_ENV["ERROR_DETAILS"];
 
@@ -95,7 +96,7 @@ readonly class ErrorController
                 ARRAY_FILTER_USE_KEY
             );
             $filtered['trace'] = array_map(
-                function($tr) {
+                function ($tr) {
                     return [
                         'file' => $tr['file'],
                         'line' => $tr['line'],

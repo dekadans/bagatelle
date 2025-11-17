@@ -15,7 +15,8 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
     public function __construct(
         private LoggerInterface $logger,
         private Template $view
-    ){}
+    ) {
+    }
 
     /**
      * The default authentication provider.
@@ -29,7 +30,7 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
         // Replace this with your authentication logic.
         // Optionally also set values on the request:
         //   $request->attributes->set('username', 'John Doe');
-        $this->logger->warning('Authentication remains unimplemented, add your logic to '.__FILE__);
+        $this->logger->warning('Authentication remains unimplemented, add your logic to ' . __FILE__);
 
         return false;
     }

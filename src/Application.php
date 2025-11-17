@@ -60,7 +60,7 @@ class Application
         date_default_timezone_set($_ENV['TIMEZONE']);
         error_reporting(E_ALL);
 
-        set_error_handler(function(int $level, string $message, string $file, int $line) {
+        set_error_handler(function (int $level, string $message, string $file, int $line) {
             $this->logger->warning("PHP Notice: $message", [
                 'level' => $level,
                 'file' => $file,
@@ -70,7 +70,7 @@ class Application
 
         // HttpKernel and Console generally catch and report all exceptions and errors.
         // This is for anything happening before or after the main application processing.
-        set_exception_handler(function(\Throwable $ex) {
+        set_exception_handler(function (\Throwable $ex) {
             $this->logger->emergency(
                 "Unhandled exception: {$ex->getMessage()}",
                 ['exception' => $ex]
@@ -97,7 +97,7 @@ class Application
             true
         );
 
-        return function() use ($kernel) {
+        return function () use ($kernel) {
             $request = Request::createFromGlobals();
             $response = $kernel->handle($request);
             $response->prepare($request);
@@ -120,7 +120,7 @@ class Application
         $app->setCommandLoader($loader);
         $app->setDispatcher($this->dispatcher);
 
-        return function() use ($app) {
+        return function () use ($app) {
             $app->run();
         };
     }

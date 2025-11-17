@@ -7,8 +7,12 @@ use Symfony\Component\Routing\Route;
 
 class DecoratedControllerLoader extends AttributeClassLoader
 {
-    protected function configureRoute(Route $route, \ReflectionClass $class, \ReflectionMethod $method, object $attr): void
-    {
+    protected function configureRoute(
+        Route $route,
+        \ReflectionClass $class,
+        \ReflectionMethod $method,
+        object $attr
+    ): void {
         $route->setDefault('_controller', $this->getControllerName($class, $method));
         $this->runDecorators($route, $class, $method);
     }

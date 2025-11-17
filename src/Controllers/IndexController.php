@@ -13,10 +13,11 @@ readonly class IndexController
     public function __construct(
         private Template $view,
         private GreetingInterface $greeter
-    ) {}
+    ) {
+    }
 
     #[Route('/', name: 'index')]
-    function __invoke(Request $request): Response
+    public function __invoke(Request $request): Response
     {
         $view = $this->view->render('welcome.html.twig', [
             'greeting' => $this->greeter->greet()

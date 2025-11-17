@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Configures and returns a PSR-11 compliant dependency injection container.
  */
@@ -48,6 +49,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcherInterface;
 use Twig\Environment as Twig;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
+
 use function DI\autowire;
 use function DI\create;
 use function DI\get;
@@ -122,13 +124,13 @@ $containerBuilder->addDefinitions([
     PsrEventDispatcherInterface::class => get(EventDispatcherInterface::class),
 
     // PSR-3 Logger
-    'bagatelle.logger.stream' => function() {
+    'bagatelle.logger.stream' => function () {
         $envPath = !empty($_ENV['LOG_STREAM']) ? $_ENV['LOG_STREAM'] : 'var/log/default.log';
         if (str_contains($envPath, '://')) {
             return $envPath;
         }
         if ($envPath[0] !== '/') {
-            $envPath = dirname(__DIR__).'/'.$envPath;
+            $envPath = dirname(__DIR__) . '/' . $envPath;
         }
         return 'file://' . $envPath;
     },
@@ -159,21 +161,21 @@ $containerBuilder->addDefinitions([
     // Templates
     Twig::class => function () {
         if (!empty($_ENV['TWIG_CACHE_DIR'])) {
-            $cacheDir = __DIR__.'/../'.$_ENV['TWIG_CACHE_DIR'];
+            $cacheDir = __DIR__ . '/../' . $_ENV['TWIG_CACHE_DIR'];
         }
-        $templateDir = __DIR__.'/../templates';
+        $templateDir = __DIR__ . '/../templates';
         $options = ['cache' => $cacheDir ?? false];
         return new Twig(new TwigFilesystemLoader($templateDir), $options);
     },
 
     // Routing
-    FileLocatorInterface::class => function() {
-        return new FileLocator(__DIR__.'/..');
+    FileLocatorInterface::class => function () {
+        return new FileLocator(__DIR__ . '/..');
     },
     RouterInterface::class => function (FileLocatorInterface $fileLocator) {
         $loader = new AttributeDirectoryLoader($fileLocator, new DecoratedControllerLoader());
         if (!empty($_ENV['ROUTING_CACHE_DIR'])) {
-            $cacheDirectory = __DIR__.'/../'.$_ENV['ROUTING_CACHE_DIR'];
+            $cacheDirectory = __DIR__ . '/../' . $_ENV['ROUTING_CACHE_DIR'];
         }
         $options = ['cache_dir' => $cacheDirectory ?? null];
         return new Router($loader, 'src/Controllers', $options);
@@ -223,7 +225,7 @@ $containerBuilder->addDefinitions([
 ]);
 
 if (!empty($_ENV['DI_CACHE_DIR'])) {
-    $containerBuilder->enableCompilation(__DIR__.'/../'.$_ENV['DI_CACHE_DIR']);
+    $containerBuilder->enableCompilation(__DIR__ . '/../' . $_ENV['DI_CACHE_DIR']);
 }
 
 return $containerBuilder->build();
