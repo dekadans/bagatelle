@@ -9,6 +9,7 @@ use App\Controllers\ErrorController;
 use App\Services\Auth\AuthenticationSubscriber;
 use App\Services\GreetingInterface;
 use App\Services\Routing\DecoratedControllerLoader;
+use App\Services\Routing\PsrResponseResolver;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -199,8 +200,9 @@ $containerBuilder->addDefinitions([
     ArgumentResolverInterface::class => function (ContainerInterface $c) {
         $enumResolver = $c->get(BackedEnumValueResolver::class);
         $psrRequestResolver = $c->get(PsrServerRequestResolver::class);
+        $psrResponseResolver = $c->get(PsrResponseResolver::class);
         $resolvers = array_merge(
-            [$enumResolver, $psrRequestResolver],
+            [$enumResolver, $psrRequestResolver, $psrResponseResolver],
             ArgumentResolver::getDefaultArgumentValueResolvers()
         );
         return new ArgumentResolver(argumentValueResolvers: $resolvers);
