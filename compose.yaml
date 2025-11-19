@@ -1,15 +1,19 @@
+# Simple Docker Compose setup for basic use cases.
+# Overridden with development environment settings from compose.override.yaml
 services:
   server:
     build:
       context: .
+      target: prod
     ports:
       - "80:80" # HTTP
       - "443:443" # HTTPS
       - "443:443/udp" # HTTP/3
     volumes:
-      #- ./:/app/public
       - caddy_data:/data
       - caddy_config:/config
+    environment:
+      SERVER_NAME: ${SERVER_NAME:-localhost:80}
 
 volumes:
   caddy_data:

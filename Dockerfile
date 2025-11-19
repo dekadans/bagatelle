@@ -1,45 +1,40 @@
 # syntax=docker/dockerfile:1
 
-# Create a stage for installing app dependencies defined in Composer.
-FROM composer:lts as deps
-
-WORKDIR /app
-
-RUN --mount=type=bind,source=composer.json,target=composer.json \
-    --mount=type=bind,source=composer.lock,target=composer.lock \
-    --mount=type=cache,target=/tmp/cache \
-    composer install --no-dev --no-interaction
-
-################################################################################
-
-FROM dunglas/frankenphp as final
-
-ENV SERVER_NAME=:80
+##### Base build with common steps
+FROM dunglas/frankenphp:1-php8.4 AS base
 
 WORKDIR /app
 
 ARG USER=appuser
 
-RUN \
-	useradd ${USER}; \
+RUN useradd ${USER}; \
 	setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp; \
-	chown -R ${USER}:${USER} /config/caddy /data/caddy
+	chown -R ${USER}:${USER} /config/caddy /data/caddy /app
 
-#RUN install-php-extensions \
-#	gd \
-#	intl \
-#	zip \
-#	opcache
+RUN install-php-extensions \
+	@composer \
+    apcu \
+	intl \
+	opcache \
+	zip
 
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-# RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
+##### Build development image target. Expects source (incl. composer dependencies in vendor/) to be mounted at /app
+FROM base as dev
+
+VOLUME /app
+
+RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 USER ${USER}
 
-COPY --from=deps app/vendor/ /app/vendor
+##### Build production image target. Installs composer dependencies and copies source code to container.
+FROM base as prod
 
-COPY . /app
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Temporary! :)
-COPY .env.example .env
+USER ${USER}
 
+COPY --link composer.* ./
+RUN composer install --no-cache --no-interaction --no-dev --no-progress
+
+COPY --link --chown=${USER}:${USER} . ./

@@ -1,0 +1,8 @@
+# Development environment overrides.
+services:
+  server:
+    build:
+      context: .
+      target: dev
+    volumes:
+      - ./:/app
