@@ -19,7 +19,7 @@ RUN install-php-extensions \
 	zip
 
 ##### Build development image target. Expects source (incl. composer dependencies in vendor/) to be mounted at /app
-FROM base as dev
+FROM base AS dev
 
 VOLUME /app
 
@@ -28,7 +28,7 @@ RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 USER ${USER}
 
 ##### Build production image target. Installs composer dependencies and copies source code to container.
-FROM base as prod
+FROM base AS prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 

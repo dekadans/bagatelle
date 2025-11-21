@@ -53,7 +53,7 @@ class Application
             exit();
         }
 
-        $this->container = require __DIR__ . '/../config/container.php';
+        $this->container = require dirname(__DIR__) . '/config/container.php';
         $this->dispatcher = $this->container->get(EventDispatcherInterface::class);
         $this->logger = $this->container->get(LoggerInterface::class);
 
@@ -114,9 +114,10 @@ class Application
         $this->boot();
         $this->subscribe('bagatelle.console.subscribers', 'app.console.subscribers');
 
+        $name = $this->container->get('app.console.name');
         $loader = $this->container->get(CommandLoaderInterface::class);
 
-        $app = new ConsoleApplication($_ENV['CONSOLE_NAME']);
+        $app = new ConsoleApplication($name);
         $app->setCommandLoader($loader);
         $app->setDispatcher($this->dispatcher);
 

@@ -11,6 +11,7 @@ use App\Services\GreetingInterface;
 use App\Services\Routing\DecoratedControllerLoader;
 use App\Services\Routing\PsrResponseResolver;
 use DI\ContainerBuilder;
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -68,6 +69,9 @@ $containerBuilder->addDefinitions([
         get(AuthenticationSubscriber::class),
     ],
 
+    // The name of the console application.
+    'app.console.name' => 'Example Console Application',
+
     // Console commands. Add your command implementation classes here.
     'app.console.commands' => [
         // NOTE: Only add class names, not container references or instances.
@@ -85,7 +89,8 @@ $containerBuilder->addDefinitions([
     'app.logger.default' => function (ContainerInterface $c) {
         $stream = $c->get('bagatelle.logger.stream'); // Normalized stream URI from LOG_STREAM env var
         $level = $c->get('bagatelle.logger.level'); // Log level from LOG_LEVEL env var (if available)
-        return new Logger('default', [new StreamHandler($stream, $level)], [new PsrLogMessageProcessor()]);
+        $handler = new StreamHandler($stream, $level)->setFormatter(new JsonFormatter());
+        return new Logger('bagatelle', [$handler], [new PsrLogMessageProcessor()]);
     }
 ]);
 
