@@ -9,7 +9,7 @@ ARG USER=appuser
 
 RUN useradd ${USER}; \
 	setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp; \
-	chown -R ${USER}:${USER} /config/caddy /data/caddy /app
+	chown -R ${USER}:${USER} /config/caddy /data/caddy
 
 RUN install-php-extensions \
 	@composer \
@@ -32,9 +32,14 @@ FROM base AS prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-USER ${USER}
-
-COPY --link composer.* ./
+COPY composer.* ./
 RUN composer install --no-cache --no-interaction --no-dev --no-progress
 
-COPY --link --chown=${USER}:${USER} . ./
+COPY . .
+
+RUN composer dump-autoload --optimize
+
+RUN chown -R ${USER}:${USER} /app && \
+    chmod -R 755 /app
+
+USER ${USER}
