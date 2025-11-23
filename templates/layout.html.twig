@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
@@ -39,7 +36,6 @@
             font-size: 2rem;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 1.5rem;
             letter-spacing: -0.025em;
         }
 
@@ -47,7 +43,6 @@
             font-size: 1.25rem;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 1rem;
             letter-spacing: -0.025em;
         }
 
@@ -55,6 +50,31 @@
             font-size: 1.0625rem;
             color: #5a6c7d;
             line-height: 1.75;
+        }
+
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            border: 1px solid #4a5568;
+        }
+
+        .error-type {
+            color: #fc8181;
+            font-weight: 600;
+        }
+
+        .file-path {
+            color: #90cdf4;
+        }
+
+        .line-number {
+            color: #fbd38d;
         }
 
         @media (max-width: 768px) {
@@ -95,7 +115,6 @@
         }
     </style>
 </head>
-{% endblock %}
 <body>
 <main>
     {% block content %}{% endblock %}

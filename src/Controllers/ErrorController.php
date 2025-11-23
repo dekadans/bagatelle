@@ -62,10 +62,11 @@ readonly class ErrorController
 
     private function asHTML(FlattenException $exception, bool $details): string
     {
-        return $this->view->render('error.html.twig', [
+        return $this->view->render('main.html.twig', [
+            'page_title' => 'Error',
             'title' => $exception->getStatusCode() . ' ' . $exception->getStatusText(),
             'message' => $this->getUserMessage($exception),
-            'details' => $details ? $this->getExceptionArray($exception) : null
+            'exception' => $details ? $this->getExceptionArray($exception) : null
         ]);
     }
 

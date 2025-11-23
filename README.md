@@ -62,7 +62,8 @@ php bin/console.php
 
 ### Build your app
 
-...
+- **Controllers**: Create controllers in `src/Controllers` and bind them to URLs using the `#[Route]` attribute as described in the [Symfony documentation](https://symfony.com/doc/current/routing.html). See also the included samples in [ExampleController](src/Controllers/ExampleController.php).
+- **Console commands**: Commands are placed in `src/Commands` and defined using attributes like `#[AsCommand]`, `#[Argument]` and `#[Option]`. See [the documentation](https://symfony.com/doc/current/console.html) and the sample [GreetingCommand](src/Commands/GreetingCommand.php). Note that console commands also needs to be added to `app.console.commands` in [container.php](config/container.php).
 
 ### Deploy to production
 

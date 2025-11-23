@@ -43,7 +43,8 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
      */
     private function makeUnauthenticatedResponse(Request $request): Response
     {
-        $errorPage = $this->view->render('error.html.twig', [
+        $errorPage = $this->view->render('main.html.twig', [
+            'page_title' => 'Error - Unauthenticated',
             'title' => 'Unauthenticated',
             'message' => 'This page requires authentication, which has not been provided or was incorrect.'
         ]);
@@ -53,7 +54,7 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
     public function checkAuthOnRequestEvent(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        $routeSubscribers = $request->attributes->get('_subscribers', []);
+        $routeSubscribers = $request->attributes->get('_route_subscribers', []);
 
         if (!in_array(self::class, $routeSubscribers)) {
             return;

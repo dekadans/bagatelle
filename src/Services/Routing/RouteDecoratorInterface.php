@@ -4,7 +4,7 @@ namespace App\Services\Routing;
 
 use Symfony\Component\Routing\Route;
 
-interface RouteDecorator
+interface RouteDecoratorInterface
 {
     public function decorate(Route $route): void;
 }

@@ -2,18 +2,18 @@
 
 namespace App\Services\Auth;
 
-use App\Services\Routing\RouteDecorator;
+use App\Services\Routing\RouteDecoratorInterface;
 use Symfony\Component\Routing\Route;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
-class Auth implements RouteDecorator
+class Auth implements RouteDecoratorInterface
 {
     public function decorate(Route $route): void
     {
         $route->setDefault(
-            '_subscribers',
+            '_route_subscribers',
             array_merge(
-                ($route->getDefault('_subscribers') ?? []),
+                ($route->getDefault('_route_subscribers') ?? []),
                 [AuthenticationSubscriber::class]
             )
         );

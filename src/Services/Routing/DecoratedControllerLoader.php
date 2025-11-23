@@ -30,7 +30,7 @@ class DecoratedControllerLoader extends AttributeClassLoader
     {
         $attributes = array_merge(
             ...array_map(
-                fn ($r) => $r->getAttributes(RouteDecorator::class, \ReflectionAttribute::IS_INSTANCEOF),
+                fn ($r) => $r->getAttributes(RouteDecoratorInterface::class, \ReflectionAttribute::IS_INSTANCEOF),
                 [$class, $method]
             )
         );

@@ -19,8 +19,8 @@ readonly class IndexController
     #[Route('/', name: 'index')]
     public function __invoke(Request $request): Response
     {
-        $view = $this->view->render('welcome.html.twig', [
-            'greeting' => $this->greeter->greet()
+        $view = $this->view->render('main.html.twig', [
+            'title' => $this->greeter->greet()
         ]);
         return new Response($view);
     }
