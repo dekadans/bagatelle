@@ -62,9 +62,18 @@ php bin/console.php
 
 ### Build your app
 
-- **Controllers**: Create controllers in `src/Controllers` and bind them to URLs using the `#[Route]` attribute as described in the [Symfony documentation](https://symfony.com/doc/current/routing.html). See also the included samples in [ExampleController](src/Controllers/ExampleController.php).
-- **Console commands**: Commands are placed in `src/Commands` and defined using attributes like `#[AsCommand]`, `#[Argument]` and `#[Option]`. See [the documentation](https://symfony.com/doc/current/console.html) and the sample [GreetingCommand](src/Commands/GreetingCommand.php). Note that console commands also needs to be added to `app.console.commands` in [container.php](config/container.php).
+- **Controllers**: Create controllers in `src/Controllers`. See the included samples in [ExampleController](src/Controllers/ExampleController.php).
+- **Console commands**: Commands are placed in `src/Commands` See the sample [GreetingCommand](src/Commands/GreetingCommand.php).
+- **Services**: Services can be placed anywhere (`src/Services` is just a suggestion) and, if needed, bound to the container in `config/container.php`.
 
 ### Deploy to production
 
 ...
+
+## Documentation
+
+- [HttpKernel and Request/Response Lifecycle](https://symfony.com/doc/current/components/http_kernel.html)
+- [Routing](https://symfony.com/doc/current/routing.html) (only parts related to the `#[Route]` attribute are relevant)
+- [HttpFoundation](https://symfony.com/doc/current/components/http_foundation.html) and [PSR-7: HTTP message interfaces](https://www.php-fig.org/psr/psr-7/) for HTTP messages
+- [The Dependency Injection Container](https://php-di.org/doc/)
+- [Console Commands](https://symfony.com/doc/current/console.html#creating-a-command)

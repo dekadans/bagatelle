@@ -11,6 +11,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Example on how to define a command using the attribute-based syntax.
  * All constructor parameters are resolved through the dependency injection container.
+ *
+ * NOTE: To enable a command, it must also be added to "app.console.commands" in config/container.php
  */
 #[AsCommand('greet', 'A sample command that prints a friendly greeting.')]
 class GreetingCommand extends Command
