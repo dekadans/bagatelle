@@ -169,7 +169,7 @@ $containerBuilder->addDefinitions([
         if (!empty($_ENV['TWIG_CACHE_DIR'])) {
             $cacheDir = __DIR__ . '/../' . $_ENV['TWIG_CACHE_DIR'];
         }
-        $templateDir = __DIR__ . '/../templates';
+        $templateDir = __DIR__ . '/../src/Templates';
         $options = ['cache' => $cacheDir ?? false];
         return new Twig(new TwigFilesystemLoader($templateDir), $options);
     },

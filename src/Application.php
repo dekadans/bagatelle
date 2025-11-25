@@ -75,7 +75,9 @@ class Application
                 "Unhandled exception: {$ex->getMessage()}",
                 ['exception' => $ex]
             );
-            http_response_code(500);
+            if (!str_contains(PHP_SAPI, 'cli')) {
+                http_response_code(500);
+            }
             echo 'Internal Server Error';
             exit();
         });
