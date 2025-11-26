@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Routing;
+namespace App\Services\FrameworkSupport;
 
 use Symfony\Component\Routing\Loader\AttributeClassLoader;
 use Symfony\Component\Routing\Route;

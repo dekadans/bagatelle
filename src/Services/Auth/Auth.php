@@ -2,7 +2,7 @@
 
 namespace App\Services\Auth;
 
-use App\Services\Routing\RouteDecoratorInterface;
+use App\Services\FrameworkSupport\RouteDecoratorInterface;
 use Symfony\Component\Routing\Route;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]

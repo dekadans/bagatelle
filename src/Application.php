@@ -58,7 +58,6 @@ class Application
         $this->logger = $this->container->get(LoggerInterface::class);
 
         date_default_timezone_set($_ENV['TIMEZONE']);
-        error_reporting(E_ALL);
 
         set_error_handler(function (int $level, string $message, string $file, int $line) {
             $this->logger->warning("PHP Notice: $message", [
@@ -77,8 +76,8 @@ class Application
             );
             if (!str_contains(PHP_SAPI, 'cli')) {
                 http_response_code(500);
+                echo 'Internal Server Error';
             }
-            echo 'Internal Server Error';
             exit();
         });
     }

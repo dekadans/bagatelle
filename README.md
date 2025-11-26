@@ -26,7 +26,7 @@ PSR-7/PSR-17 HTTP interfaces are implemented through [nyholm/psr7](https://githu
 
 ### Authentication boilerplate
 
-Bagatelle do contain some custom code, most notably route decoration [inspired by Tempest](https://tempestphp.com/2.x/essentials/routing#route-decorators-route-groups). Only one decorator is included by default, `#[Auth]`, which enables a prepared authentication solution that only lacks the final verification implementation (e.g. checking a JWT or Basic Auth username and password).
+Bagatelle do contain some custom code, most notably route decoration [inspired by Tempest](https://tempestphp.com/2.x/essentials/routing#route-decorators-route-groups). Only `#[Auth]` is included by default, which enables a prepared authentication solution that only lacks the final verification implementation (e.g. checking a JWT or Basic Auth username and password).
 
 ### Docker
 
