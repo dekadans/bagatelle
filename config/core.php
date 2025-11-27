@@ -2,6 +2,7 @@
 
 use App\Controllers\ErrorController;
 use App\Services\FrameworkSupport\DecoratedControllerLoader;
+use Monolog\Handler\StreamHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
@@ -12,6 +13,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 use Symfony\Bridge\PsrHttpMessage\ArgumentValueResolver\PsrServerRequestResolver;
 use Symfony\Bridge\PsrHttpMessage\EventListener\PsrResponseListener;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
@@ -42,7 +44,6 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcherInterface;
 use Twig\Environment as Twig;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
-use function DI\autowire;
 use function DI\create;
 use function DI\get;
 
@@ -54,20 +55,23 @@ return [
     PsrEventDispatcherInterface::class => get(EventDispatcherInterface::class),
 
     // PSR-3 Logger
-    'bagatelle.logger.stream' => function () {
-        $envPath = !empty($_ENV['LOG_STREAM']) ? $_ENV['LOG_STREAM'] : 'var/log/default.log';
-        if (str_contains($envPath, '://')) {
-            return $envPath;
+    StreamHandler::class => function () {
+        $streamUri = !empty($_ENV['LOG_STREAM']) ? $_ENV['LOG_STREAM'] : 'php://stderr';
+        if (!str_contains($streamUri, '://')) {
+            if ($streamUri[0] !== '/') {
+                $streamUri = dirname(__DIR__) . '/' . $streamUri;
+            }
+            $streamUri = 'file://' . $streamUri;
         }
-        if ($envPath[0] !== '/') {
-            $envPath = dirname(__DIR__) . '/' . $envPath;
-        }
-        return 'file://' . $envPath;
+        $logLevel = !empty($_ENV['LOG_LEVEL']) ? $_ENV['LOG_LEVEL'] : 'info';
+
+        return new StreamHandler($streamUri, $logLevel);
     },
-    'bagatelle.logger.level' => function () {
-        return !empty($_ENV['LOG_LEVEL']) ? $_ENV['LOG_LEVEL'] : 'critical';
+    ConsoleHandler::class => create(ConsoleHandler::class),
+    LoggerInterface::class => function (ContainerInterface $c) {
+        $loggerImplementation = str_contains(PHP_SAPI, 'cli') ? 'app.console.logger' : 'app.http.logger';
+        return $c->get($loggerImplementation);
     },
-    LoggerInterface::class => get('app.logger.default'),
 
     // PSR-7, PSR-17 and HttpFoundation bridge
     ServerRequestFactoryInterface::class => create(Psr17Factory::class),
@@ -82,11 +86,7 @@ return [
             get(UploadedFileFactoryInterface::class),
             get(ResponseFactoryInterface::class)
         ),
-    HttpFoundationFactoryInterface::class => autowire(HttpFoundationFactory::class),
-    PsrResponseListener::class => create(PsrResponseListener::class)
-        ->constructor(
-            get(HttpFoundationFactoryInterface::class)
-        ),
+    HttpFoundationFactoryInterface::class => create(HttpFoundationFactory::class),
 
     // Templates
     Twig::class => function () {
@@ -124,7 +124,10 @@ return [
                 ErrorController::class,
                 get(LoggerInterface::class)
             ),
-        get(PsrResponseListener::class)
+        create(PsrResponseListener::class)
+            ->constructor(
+                get(HttpFoundationFactoryInterface::class)
+            )
     ],
     'bagatelle.http.psr-response-resolver' => function (ResponseFactoryInterface $rf, StreamFactoryInterface $sf) {
         /**
@@ -132,7 +135,7 @@ return [
          * Used when type hinting ResponseInterface in controller actions.
          * (So that you don't have to rely on factories or implementations in your controllers.)
          */
-        return new readonly class ($rf, $sf) implements ValueResolverInterface
+        return new class ($rf, $sf) implements ValueResolverInterface
         {
             public function __construct(
                 private ResponseFactoryInterface $responseFactory,
@@ -174,6 +177,7 @@ return [
     },
     'bagatelle.console.subscribers' => [
         create(ConsoleErrorListener::class)
-            ->constructor(get(LoggerInterface::class))
+            ->constructor(get(LoggerInterface::class)),
+        get(ConsoleHandler::class)
     ]
 ];

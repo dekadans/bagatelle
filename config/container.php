@@ -14,7 +14,7 @@ use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
-use Psr\Container\ContainerInterface;
+use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 use function DI\autowire;
 
 $containerBuilder = new ContainerBuilder();
@@ -25,10 +25,21 @@ $containerBuilder = new ContainerBuilder();
  *
  */
 $containerBuilder->addDefinitions([
+    // --- HTTP Application Configuration
+
     // HTTP request event subscribers.
     'app.http.subscribers' => [
         autowire(AuthenticationSubscriber::class),
     ],
+
+    // PSR-3 logger implementation for HTTP application.
+    'app.http.logger' => function (StreamHandler $handler) {
+        // StreamHandler comes configured values from .env variables LOG_STREAM and LOG_LEVEL.
+        $handler->setFormatter(new JsonFormatter());
+        return new Logger('bagatelle-http', [$handler], [new PsrLogMessageProcessor()]);
+    },
+
+    // --- Console Application Configuration
 
     // The name of the console application.
     'app.console.name' => 'Example Console Application',
@@ -45,13 +56,9 @@ $containerBuilder->addDefinitions([
         // autowire(App\Events\SomeEventSubscriber:class)
     ],
 
-    // Logging configuration
-    // Factory method that returns a PSR-3 compliant logging implementation.
-    'app.logger.default' => function (ContainerInterface $c) {
-        $stream = $c->get('bagatelle.logger.stream'); // Normalized stream URI from LOG_STREAM env var
-        $level = $c->get('bagatelle.logger.level'); // Log level from LOG_LEVEL env var (if available)
-        $handler = new StreamHandler($stream, $level)->setFormatter(new JsonFormatter());
-        return new Logger('bagatelle', [$handler], [new PsrLogMessageProcessor()]);
+    // PSR-3 logger implementation for console application.
+    'app.console.logger' => function (ConsoleHandler $handler) {
+        return new Logger('bagatelle-cli', [$handler], [new PsrLogMessageProcessor()]);
     }
 ]);
 

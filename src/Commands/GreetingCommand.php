@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Services\GreetingInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,7 +19,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class GreetingCommand extends Command
 {
     public function __construct(
-        readonly private GreetingInterface $greeting
+        readonly private GreetingInterface $greeting,
+        readonly private LoggerInterface $logger
     ) {
         parent::__construct();
     }
@@ -27,9 +29,18 @@ class GreetingCommand extends Command
         SymfonyStyle $io,
         #[Argument(description: 'The number of greetings to print.')] int $number = 1
     ): int {
+        // By default, INFO-level logs require extra verbosity (-vv flag) to be shown.
+        $this->logger->info('Initiating friendliness...');
+
+        if ($number > 100) {
+            $this->logger->error('Greeting overload! {number} is too many!', ['number' => $number]);
+            return Command::FAILURE;
+        }
+
         for ($i = 0; $i < $number; $i++) {
             $io->text($this->greeting->greet());
         }
+
         return Command::SUCCESS;
     }
 }
