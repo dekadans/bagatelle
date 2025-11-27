@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Configures and returns a PSR-11 compliant dependency injection container.

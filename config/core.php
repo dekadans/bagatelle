@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use App\Controllers\ErrorController;
 use App\Services\FrameworkSupport\DecoratedControllerLoader;
