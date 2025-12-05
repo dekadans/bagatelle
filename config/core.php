@@ -69,7 +69,7 @@ return [
     },
     ConsoleHandler::class => create(ConsoleHandler::class),
     LoggerInterface::class => function (ContainerInterface $c) {
-        $loggerImplementation = str_contains(PHP_SAPI, 'cli') ? 'app.console.logger' : 'app.http.logger';
+        $loggerImplementation = PHP_SAPI === 'cli' ? 'app.console.logger' : 'app.http.logger';
         return $c->get($loggerImplementation);
     },
 
