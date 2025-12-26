@@ -19,7 +19,7 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * The default authentication provider.
+     * The default authentication implementation.
      * Return true if authentication is successful, false otherwise.
      *
      * @param Request $request
@@ -66,7 +66,7 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [KernelEvents::REQUEST => 'checkAuthOnRequestEvent'];
     }
