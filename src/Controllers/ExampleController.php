@@ -37,7 +37,7 @@ class ExampleController
 
         $url = $this->url->generate('param-example', ['category' => 'demo', 'page' => 42, 'message' => 'Hey']);
 
-        $html = $this->twig->render('main.html.twig', [
+        $html = $this->twig->render('bagatelle.html.twig', [
             'title' => 'Example page.',
             'message' => "Using UrlGeneratorInterface, it's very easy to generate URLs like $url"
         ]);

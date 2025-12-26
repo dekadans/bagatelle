@@ -43,7 +43,7 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
      */
     private function makeUnauthenticatedResponse(Request $request): Response
     {
-        $errorPage = $this->view->render('main.html.twig', [
+        $errorPage = $this->view->render('bagatelle.html.twig', [
             'page_title' => 'Error - Unauthenticated',
             'title' => 'Unauthenticated',
             'message' => 'This page requires authentication, which has not been provided or was incorrect.'

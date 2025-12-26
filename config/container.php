@@ -64,6 +64,21 @@ $containerBuilder->addDefinitions([
 
 /*
  *
+ * Controllers & Commands.
+ *
+ */
+$containerBuilder->addDefinitions([
+    // Adding autowire definitions here is not necessary to make it work,
+    // however, it will improve performance when using a compiled container in production.
+
+    \App\Controllers\IndexController::class => autowire(),
+    \App\Controllers\ErrorController::class => autowire(),
+
+    GreetingCommand::class => autowire()
+]);
+
+/*
+ *
  * Services.
  *
  */

@@ -62,7 +62,7 @@ readonly class ErrorController
 
     private function asHTML(FlattenException $exception, bool $details): string
     {
-        return $this->view->render('main.html.twig', [
+        return $this->view->render('bagatelle.html.twig', [
             'page_title' => 'Error',
             'title' => $exception->getStatusCode() . ' ' . $exception->getStatusText(),
             'message' => $this->getUserMessage($exception),
