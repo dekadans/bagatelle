@@ -4,11 +4,14 @@ namespace App;
 
 use Dotenv\Dotenv;
 use Dotenv\Exception\InvalidPathException;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
@@ -54,10 +57,10 @@ class Application
         }
 
         $this->container = require dirname(__DIR__) . '/config/container.php';
-        $this->dispatcher = $this->container->get(EventDispatcherInterface::class);
-        $this->logger = $this->container->get(LoggerInterface::class);
+        $this->dispatcher = $this->service(EventDispatcherInterface::class);
+        $this->logger = $this->service(LoggerInterface::class);
 
-        date_default_timezone_set($_ENV['TIMEZONE']);
+        date_default_timezone_set($this->config('app.timezone'));
 
         set_error_handler(function (int $level, string $message, string $file, int $line) {
             $this->logger->warning("PHP Notice: $message", [
@@ -65,6 +68,7 @@ class Application
                 'file' => $file,
                 'line' => $line
             ]);
+            return true;
         });
 
         // HttpKernel and Console generally catch and report all exceptions and errors.
@@ -91,7 +95,7 @@ class Application
         $this->subscribe('bagatelle.http.subscribers', 'app.http.subscribers');
 
         $controllerResolver = new ContainerControllerResolver($this->container);
-        $argumentResolver = $this->container->get(ArgumentResolverInterface::class);
+        $argumentResolver = $this->service(ArgumentResolverInterface::class);
 
         $kernel = new HttpKernel(
             $this->dispatcher,
@@ -118,8 +122,8 @@ class Application
         $this->boot();
         $this->subscribe('bagatelle.console.subscribers', 'app.console.subscribers');
 
-        $name = $this->container->get('app.console.name');
-        $loader = $this->container->get(CommandLoaderInterface::class);
+        $name = $this->config('app.console.name');
+        $loader = $this->service(CommandLoaderInterface::class);
 
         $app = new ConsoleApplication($name);
         $app->setCommandLoader($loader);
@@ -142,5 +146,38 @@ class Application
         foreach ($subscribers as $subscriber) {
             $this->dispatcher->addSubscriber($subscriber);
         }
+    }
+
+    /**
+     * @template T
+     * @param class-string<T> $name
+     * @return T
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function service(string $name)
+    {
+        $service = $this->container->get($name);
+        if (!$service instanceof $name) {
+            throw new \RuntimeException("Container entry $name was not an instance of the key name.");
+        }
+
+        return $service;
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function config(string $name): string
+    {
+        $value = $this->container->get($name);
+        if (!is_string($value)) {
+            throw new \RuntimeException("Container entry $name must be a string.");
+        }
+
+        return $value;
     }
 }

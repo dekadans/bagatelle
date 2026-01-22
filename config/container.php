@@ -25,6 +25,10 @@ $containerBuilder = new ContainerBuilder();
  *
  */
 $containerBuilder->addDefinitions([
+    // Default application timezone.
+    // Set to one from https://www.php.net/manual/en/timezones.php
+    'app.timezone' => 'UTC',
+
     // --- HTTP Application Configuration
 
     // HTTP request event subscribers.
