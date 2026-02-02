@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
 use App\Controllers\ErrorController;
-use App\Services\FrameworkSupport\DecoratedControllerLoader;
+use App\Routing\DecoratedControllerLoader;
+use App\Routing\RouteEventSubscriber;
 use Monolog\Handler\StreamHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
@@ -127,6 +128,10 @@ return [
         create(PsrResponseListener::class)
             ->constructor(
                 get(HttpFoundationFactoryInterface::class)
+            ),
+        create(RouteEventSubscriber::class)
+            ->constructor(
+                get(ContainerInterface::class)
             )
     ],
     'bagatelle.http.psr-response-resolver' => function (ResponseFactoryInterface $rf, StreamFactoryInterface $sf) {

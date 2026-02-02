@@ -7,7 +7,6 @@
  */
 
 use App\Commands\GreetingCommand;
-use App\Services\Auth\AuthenticationSubscriber;
 use App\Services\GreetingInterface;
 use DI\ContainerBuilder;
 use Monolog\Formatter\JsonFormatter;
@@ -33,7 +32,9 @@ $containerBuilder->addDefinitions([
 
     // HTTP request event subscribers.
     'app.http.subscribers' => [
-        autowire(AuthenticationSubscriber::class),
+        // Add Symfony event subscribers through container references, for example:
+        // autowire(App\Events\SomeEventSubscriber:class)
+        // They'll be automatically registered with the event dispatcher.
     ],
 
     // PSR-3 logger implementation for HTTP application.
@@ -56,8 +57,7 @@ $containerBuilder->addDefinitions([
 
     // Console application event subscribers.
     'app.console.subscribers' => [
-        // Add subscribers through container references, for example:
-        // autowire(App\Events\SomeEventSubscriber:class)
+        // ...
     ],
 
     // PSR-3 logger implementation for console application.

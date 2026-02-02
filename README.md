@@ -24,9 +24,9 @@ Well known community packages [Monolog](https://seldaek.github.io/monolog/) (PSR
 
 PSR-7/PSR-17 HTTP interfaces are implemented through [nyholm/psr7](https://github.com/Nyholm/psr7), complementing Symfony's [HttpFoundation](https://symfony.com/packages/HttpFoundation). 
 
-### Authentication boilerplate
+### Routing and Middleware
 
-Bagatelle do contain some custom code, most notably route decoration [inspired by Tempest](https://tempestphp.com/2.x/essentials/routing#route-decorators-route-groups). Only `#[Auth]` is included by default, which enables a prepared authentication solution that only lacks the final verification implementation (e.g. checking a JWT or Basic Auth username and password).
+Some custom code is included that introduces route decoration [inspired by Tempest](https://tempestphp.com/2.x/essentials/routing#route-decorators-route-groups) and middleware-esque functionality where logic can be added before or after the controller is executed. Applying middleware is done on individual routes or entire controllers using the `#[Middleware]` attribute.
 
 ### Docker
 
@@ -68,7 +68,16 @@ php bin/console.php
 
 ### Deploy to production
 
-...
+Deployment to a production environment will of course vary depending on your particular circumstances, but remember to use proper values in `.env`:
+
+1. "ERROR_DETAILS" should be _disabled_ to avoid leaking sensitive information.
+2. "ROUTING_CACHE_DIR", "DI_CACHE_DIR" and "TWIG_CACHE_DIR" should be _enabled_ for improved performance.
+
+If you're using Docker in production, be sure to read the [FrankenPHP docs](https://frankenphp.dev/docs/production/). The following compose command will run the container with production configuration:
+
+```shell
+SERVER_NAME="your-domain.com" docker compose -f compose.yaml -f compose.prod.yaml up
+```
 
 ## Documentation
 

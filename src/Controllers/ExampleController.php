@@ -2,9 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Services\Auth\Auth;
-use Psr\Http\Message\ServerRequestInterface;
+use App\Middleware\Authentication;
+use App\Routing\Middleware;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ use Twig\Environment as Twig;
 
 // All routes in this controller have paths prefixed with "/examples"
 #[Route('/examples')]
-class ExampleController
+readonly class ExampleController
 {
     public function __construct(
         private Twig $twig,
@@ -86,8 +87,8 @@ class ExampleController
         ]);
     }
 
-    #[Auth]
     #[Route('/auth', name: 'auth-example')]
+    #[Middleware(Authentication::class)]
     public function auth(): Response
     {
         // The #[Auth] attribute will activate the authentication logic in AuthenticationSubscriber.

@@ -1,23 +1,30 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace App\Services\Auth;
+namespace App\Middleware;
 
+use App\Routing\AbstractMiddleware;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Twig\Environment as Template;
+use Twig\Environment;
 
-readonly class AuthenticationSubscriber implements EventSubscriberInterface
+class Authentication extends AbstractMiddleware
 {
     public function __construct(
-        private LoggerInterface $logger,
-        private Template $view
+        private readonly Environment $view,
+        private readonly LoggerInterface $logger
     ) {
+
     }
 
+    public function inbound(Request $request): ?Response
+    {
+        if (!$this->performAuthentication($request)) {
+            return $this->makeUnauthenticatedResponse($request);
+        }
+
+        return null;
+    }
     /**
      * The default authentication implementation.
      * Return true if authentication is successful, false otherwise.
@@ -49,25 +56,5 @@ readonly class AuthenticationSubscriber implements EventSubscriberInterface
             'message' => 'This page requires authentication, which has not been provided or was incorrect.'
         ]);
         return new Response($errorPage, 401);
-    }
-
-    public function checkAuthOnRequestEvent(RequestEvent $event): void
-    {
-        $request = $event->getRequest();
-        $routeSubscribers = $request->attributes->get('_route_subscribers', []);
-
-        if (!in_array(self::class, $routeSubscribers)) {
-            return;
-        }
-
-        if (!$this->performAuthentication($request)) {
-            $response = $this->makeUnauthenticatedResponse($request);
-            $event->setResponse($response);
-        }
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [KernelEvents::REQUEST => 'checkAuthOnRequestEvent'];
     }
 }
