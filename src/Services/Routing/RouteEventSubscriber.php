@@ -14,9 +14,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 readonly class RouteEventSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private ContainerInterface $container)
-    {
-    }
+    public function __construct(private ContainerInterface $container) {}
 
     public function handleRequest(RequestEvent $event): void
     {

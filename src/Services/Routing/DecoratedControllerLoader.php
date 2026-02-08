@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Services\Routing;
 
@@ -31,7 +33,7 @@ class DecoratedControllerLoader extends AttributeClassLoader
     {
         $attributes = array_merge(
             ...array_map(
-                fn ($r) => $r->getAttributes(RouteDecoratorInterface::class, \ReflectionAttribute::IS_INSTANCEOF),
+                fn($r) => $r->getAttributes(RouteDecoratorInterface::class, \ReflectionAttribute::IS_INSTANCEOF),
                 [$class, $method]
             )
         );

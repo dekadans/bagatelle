@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Commands;
 
@@ -19,15 +21,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class GreetingCommand extends Command
 {
     public function __construct(
-        readonly private GreetingInterface $greeting,
-        readonly private LoggerInterface $logger
+        private readonly GreetingInterface $greeting,
+        private readonly LoggerInterface $logger
     ) {
         parent::__construct();
     }
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument(description: 'The number of greetings to print.')] int $number = 1
+        #[Argument(description: 'The number of greetings to print.')]
+        int $number = 1
     ): int {
         // By default, INFO-level logs require extra verbosity (-vv flag) to be shown.
         $this->logger->info('Initiating friendliness...');

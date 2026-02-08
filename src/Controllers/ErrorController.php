@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controllers;
 
@@ -17,8 +19,7 @@ readonly class ErrorController
 {
     public function __construct(
         private Template $view
-    ) {
-    }
+    ) {}
 
     public function __invoke(Request $request, FlattenException $exception): Response
     {
@@ -29,7 +30,7 @@ readonly class ErrorController
         if (str_contains($contentType, 'json')) {
             $data = $this->asJSON($exception, $exceptionDetails);
             return new JsonResponse($data, headers: [
-                'Content-Type' => $contentType
+                'Content-Type' => $contentType,
             ]);
         } else {
             $data = $this->asHTML($exception, $exceptionDetails);
@@ -42,7 +43,7 @@ readonly class ErrorController
         $acceptable = [
             'text/html',
             'application/problem+json',
-            'application/json'
+            'application/json',
         ];
         $acceptHeader = AcceptHeader::fromString(
             $request->headers->get('Accept') ?? '*/*'
@@ -66,7 +67,7 @@ readonly class ErrorController
             'page_title' => 'Error',
             'title' => $exception->getStatusCode() . ' ' . $exception->getStatusText(),
             'message' => $this->getUserMessage($exception),
-            'exception' => $details ? $this->getExceptionArray($exception) : null
+            'exception' => $details ? $this->getExceptionArray($exception) : null,
         ]);
     }
 
@@ -76,7 +77,7 @@ readonly class ErrorController
             'type' => 'about:blank',
             'status' => $exception->getStatusCode(),
             'title' => $exception->getStatusText(),
-            'detail' => $this->getUserMessage($exception)
+            'detail' => $this->getUserMessage($exception),
         ];
 
         if ($details) {
@@ -101,7 +102,7 @@ readonly class ErrorController
                     return [
                         'file' => $tr['file'],
                         'line' => $tr['line'],
-                        'function' => $tr['class'] . $tr['type'] . $tr['function'] . ($tr['function'] ? '()' : '')
+                        'function' => $tr['class'] . $tr['type'] . $tr['function'] . ($tr['function'] ? '()' : ''),
                     ];
                 },
                 $filtered['trace']

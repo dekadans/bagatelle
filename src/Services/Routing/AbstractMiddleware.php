@@ -27,7 +27,5 @@ abstract class AbstractMiddleware
      * @param Response $response
      * @return void
      */
-    public function outbound(Request $request, Response $response): void
-    {
-    }
+    public function outbound(Request $request, Response $response): void {}
 }

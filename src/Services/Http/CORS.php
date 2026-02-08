@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Services\Http;
 
@@ -23,10 +25,9 @@ class CORS implements RouteDecoratorInterface
         string|array|null $methods = null,
         string|array|null $headers = null,
         string|array|null $exposeHeaders = null,
-        bool|null $credentials = null,
-        int|null $maxAge = null
-    )
-    {
+        ?bool $credentials = null,
+        ?int $maxAge = null
+    ) {
         $this->origin = $origin ?? $this->env('CORS_ALLOW_ORIGIN') ?? '*';
         $this->methods = $methods
             ?? $this->env('CORS_ALLOW_METHODS')
@@ -46,7 +47,7 @@ class CORS implements RouteDecoratorInterface
             'allow_headers' => $this->headers,
             'expose_headers' => $this->exposeHeaders,
             'allow_credentials' => $this->credentials,
-            'max_age' => $this->maxAge
+            'max_age' => $this->maxAge,
         ]);
 
         $methods = $route->getMethods();

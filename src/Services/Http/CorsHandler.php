@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Services\Http;
 
@@ -46,7 +48,7 @@ class CorsHandler extends AbstractMiddleware
         $headers = [
             'Access-Control-Allow-Origin' => $origin,
             'Access-Control-Allow-Credentials' => $options['allow_credentials'] ? 'true' : null,
-            'Vary' => 'Origin'
+            'Vary' => 'Origin',
         ];
 
         if ($request->isMethod('OPTIONS')) {

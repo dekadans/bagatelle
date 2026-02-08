@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controllers;
 
@@ -21,14 +23,13 @@ readonly class IndexController
         private GreetingInterface $greeter,
         private UrlGeneratorInterface $url,
         private LoggerInterface $log
-    ) {
-    }
+    ) {}
 
     #[Route('/', name: 'index', methods: ['GET'])]
     public function __invoke(Request $request): Response
     {
         $view = $this->view->render('bagatelle.html.twig', [
-            'title' => $this->greeter->greet()
+            'title' => $this->greeter->greet(),
         ]);
         return new Response($view);
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App;
 
@@ -27,14 +29,14 @@ class Application
     private EventDispatcherInterface $dispatcher;
     private LoggerInterface $logger;
 
-    private(set) \Closure $console {
+    public private(set) \Closure $console {
         get {
             $this->console ??= $this->makeConsoleApplication();
             return $this->console;
         }
     }
 
-    private(set) \Closure $http {
+    public private(set) \Closure $http {
         get {
             $this->http ??= $this->makeHttpApplication();
             return $this->http;
@@ -66,7 +68,7 @@ class Application
             $this->logger->warning("PHP Notice: $message", [
                 'level' => $level,
                 'file' => $file,
-                'line' => $line
+                'line' => $line,
             ]);
             return true;
         });

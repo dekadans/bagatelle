@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /*
  * Configures and returns a PSR-11 compliant dependency injection container.
@@ -14,6 +16,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
+
 use function DI\autowire;
 
 $containerBuilder = new ContainerBuilder();
@@ -52,7 +55,7 @@ $containerBuilder->addDefinitions([
     // Console commands. Add your command implementation classes here.
     'app.console.commands' => [
         // NOTE: Only add class names, not container references or instances.
-        GreetingCommand::class
+        GreetingCommand::class,
     ],
 
     // Console application event subscribers.
@@ -63,7 +66,7 @@ $containerBuilder->addDefinitions([
     // PSR-3 logger implementation for console application.
     'app.console.logger' => function (ConsoleHandler $handler) {
         return new Logger('bagatelle-cli', [$handler], [new PsrLogMessageProcessor()]);
-    }
+    },
 ]);
 
 /*
@@ -78,7 +81,7 @@ $containerBuilder->addDefinitions([
     \App\Controllers\IndexController::class => autowire(),
     \App\Controllers\ErrorController::class => autowire(),
 
-    GreetingCommand::class => autowire()
+    GreetingCommand::class => autowire(),
 ]);
 
 /*
@@ -93,20 +96,19 @@ $containerBuilder->addDefinitions([
 
     // Service used in the default Bagatelle welcome page and sample console command.
     GreetingInterface::class => function () {
-        return new class () implements GreetingInterface
-        {
+        return new class implements GreetingInterface {
             public function greet(): string
             {
                 $greetings = [
                     'Hello!', 'Hi!', 'Hey!', 'Yo!', 'Hiya!',
                     "How's everything?", 'How are you?', "How's it going?", "What's up?", 'Howdy!',
                     'Greetings!', 'Welcome!', 'Nice to see you!', 'Long time no see!', 'How have you been?',
-                    'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?"
+                    'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?",
                 ];
                 return $greetings[array_rand($greetings)];
             }
         };
-    }
+    },
 ]);
 
 // Add the core Bagatelle configuration.

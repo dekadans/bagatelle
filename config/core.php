@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use App\Controllers\ErrorController;
 use App\Services\Routing\DecoratedControllerLoader;
@@ -45,6 +47,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as ContractsEventDispatcherInterface;
 use Twig\Environment as Twig;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
+
 use function DI\create;
 use function DI\get;
 
@@ -132,7 +135,7 @@ return [
         create(RouteEventSubscriber::class)
             ->constructor(
                 get(ContainerInterface::class)
-            )
+            ),
     ],
     'bagatelle.http.psr-response-resolver' => function (ResponseFactoryInterface $rf, StreamFactoryInterface $sf) {
         /**
@@ -140,8 +143,7 @@ return [
          * Used when type hinting ResponseInterface in controller actions.
          * (So that you don't have to rely on factories or implementations in your controllers.)
          */
-        return new class ($rf, $sf) implements ValueResolverInterface
-        {
+        return new class ($rf, $sf) implements ValueResolverInterface {
             public function __construct(
                 private ResponseFactoryInterface $responseFactory,
                 private StreamFactoryInterface $streamFactory
@@ -183,6 +185,6 @@ return [
     'bagatelle.console.subscribers' => [
         create(ConsoleErrorListener::class)
             ->constructor(get(LoggerInterface::class)),
-        get(ConsoleHandler::class)
-    ]
+        get(ConsoleHandler::class),
+    ],
 ];
