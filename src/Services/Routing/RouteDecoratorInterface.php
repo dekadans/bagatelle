@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Routing;
+namespace App\Services\Routing;
 
 use Symfony\Component\Routing\Route;
 

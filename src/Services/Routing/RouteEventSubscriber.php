@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Routing;
+namespace App\Services\Routing;
 
 use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -44,7 +44,7 @@ readonly class RouteEventSubscriber implements EventSubscriberInterface
     private function getRouteMiddleware(Request $request): \Generator
     {
         /** @var \SplPriorityQueue $routeMiddleware */
-        $routeMiddleware = $request->attributes->get('_middleware');
+        $routeMiddleware = $request->attributes->get('_middleware', []);
         foreach ($routeMiddleware as $ref) {
             yield $this->container->get($ref);
         }

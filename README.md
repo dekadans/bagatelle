@@ -14,23 +14,13 @@ It's not really a micro-framework, instead, Bagatelle bundles and pre-configures
 
 ## Contents
 
-### Core Symfony components
-
 Bagatelle centers around Symfony's [HttpKernel](https://symfony.com/packages/HttpKernel), [Routing](https://symfony.com/packages/Routing), [EventDispatcher](https://symfony.com/packages/EventDispatcher) and [Console](https://symfony.com/packages/Console) packages for building web and CLI applications.
 
-### Community cornerstones
+Well known packages [Monolog](https://seldaek.github.io/monolog/) (PSR-3 logging), [PHP-DI](https://php-di.org/) (PSR-11 dependency injection container), [Twig](https://twig.symfony.com/) (templating engine), [phpdotenv](https://github.com/vlucas/phpdotenv) (environment variables) and [nyholm/psr7](https://github.com/Nyholm/psr7) are bundled and preconfigured as well.
 
-Well known community packages [Monolog](https://seldaek.github.io/monolog/) (PSR-3 logging), [PHP-DI](https://php-di.org/) (PSR-11 dependency injection container), [Twig](https://twig.symfony.com/) (templating engine) and [phpdotenv](https://github.com/vlucas/phpdotenv) (environment variables) are bundled and preconfigured.
+A basic but functional implementation for adding middleware to routes and controllers is also prepared. 
 
-PSR-7/PSR-17 HTTP interfaces are implemented through [nyholm/psr7](https://github.com/Nyholm/psr7), complementing Symfony's [HttpFoundation](https://symfony.com/packages/HttpFoundation). 
-
-### Routing and Middleware
-
-Some custom code is included that introduces route decoration [inspired by Tempest](https://tempestphp.com/2.x/essentials/routing#route-decorators-route-groups) and middleware-esque functionality where logic can be added before or after the controller is executed. Applying middleware is done on individual routes or entire controllers using the `#[Middleware]` attribute.
-
-### Docker
-
-A Docker image based on [FrankenPHP](https://frankenphp.dev/) is ready for development and production use-cases.
+Additionally, a Docker image based on [FrankenPHP](https://frankenphp.dev/) is ready for development and production use-cases.
 
 ## Get Started
 
@@ -50,6 +40,9 @@ or using Docker:
 
 ```shell
 docker compose up -d
+
+# or, for production config:
+SERVER_NAME="your-domain.com" docker compose -f compose.yaml -f compose.prod.yaml up
 ```
 
 Both will start your Bagatelle-based application at localhost:8080.
@@ -60,25 +53,6 @@ The console application is executed using:
 php bin/console.php
 ```
 
-### Build your app
-
-- **Controllers**: Create controllers in `src/Controllers`. See the included samples in [ExampleController](src/Controllers/ExampleController.php).
-- **Console commands**: Commands are placed in `src/Commands` See the sample [GreetingCommand](src/Commands/GreetingCommand.php).
-- **Services**: Services can be placed anywhere (`src/Services` is just a suggestion) and, if needed, bound to the container in `config/container.php`.
-
-### Deploy to production
-
-Deployment to a production environment will of course vary depending on your particular circumstances, but remember to use proper values in `.env`:
-
-1. "ERROR_DETAILS" should be _disabled_ to avoid leaking sensitive information.
-2. "ROUTING_CACHE_DIR", "DI_CACHE_DIR" and "TWIG_CACHE_DIR" should be _enabled_ for improved performance.
-
-If you're using Docker in production, be sure to read the [FrankenPHP docs](https://frankenphp.dev/docs/production/). The following compose command will run the container with production configuration:
-
-```shell
-SERVER_NAME="your-domain.com" docker compose -f compose.yaml -f compose.prod.yaml up
-```
-
 ## Documentation
 
 - [HttpKernel and Request/Response Lifecycle](https://symfony.com/doc/current/components/http_kernel.html)
@@ -86,3 +60,5 @@ SERVER_NAME="your-domain.com" docker compose -f compose.yaml -f compose.prod.yam
 - [HttpFoundation](https://symfony.com/doc/current/components/http_foundation.html) and [PSR-7: HTTP message interfaces](https://www.php-fig.org/psr/psr-7/) for HTTP messages
 - [The Dependency Injection Container](https://php-di.org/doc/)
 - [Console Commands](https://symfony.com/doc/current/console.html#creating-a-command)
+
+... add examples ...

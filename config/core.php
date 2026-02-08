@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
 use App\Controllers\ErrorController;
-use App\Routing\DecoratedControllerLoader;
-use App\Routing\RouteEventSubscriber;
+use App\Services\Routing\DecoratedControllerLoader;
+use App\Services\Routing\RouteEventSubscriber;
 use Monolog\Handler\StreamHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;

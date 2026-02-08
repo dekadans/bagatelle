@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Routing;
+namespace App\Services\Routing;
 
 use Symfony\Component\Routing\Loader\AttributeClassLoader;
 use Symfony\Component\Routing\Route;
@@ -14,7 +14,7 @@ class DecoratedControllerLoader extends AttributeClassLoader
         object $attr
     ): void {
         $route->setDefault('_controller', $this->getControllerName($class, $method));
-        $route->setDefault('_middleware', new \SplPriorityQueue());
+        $route->setDefault('_middleware', new \SplStack());
         $this->runDecorators($route, $class, $method);
     }
 

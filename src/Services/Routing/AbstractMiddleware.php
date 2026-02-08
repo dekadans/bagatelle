@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Routing;
+namespace App\Services\Routing;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
