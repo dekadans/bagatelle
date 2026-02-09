@@ -3,7 +3,6 @@
   "description": "Bagatelle is a PHP boilerplate bundle for simple websites and APIs.",
   "type": "project",
   "license": "MIT",
-  "version": "1.0.0",
   "require": {
     "php": "^8.4",
     "symfony/http-kernel": "^8.0",
