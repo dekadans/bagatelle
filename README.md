@@ -8,17 +8,15 @@ _― [bagatelle - Wiktionary, the free dictionary](https://en.wiktionary.org/wik
 
 ## Introduction
 
-Bagatelle is a PHP boilerplate bundle for simple websites and APIs.
-
-It's not really a micro-framework, instead, Bagatelle bundles and pre-configures common components from the PHP ecosystem without introducing much original code. It makes it easy to get started building simple web applications, when complete framework installations are overkill.
+Bagatelle is an opinionated PHP boilerplate bundle for simple websites and APIs. It bundles and pre-configures common components from the PHP ecosystem, making it easy to get started while having full control of all the details.
 
 ## Contents
 
 Bagatelle centers around Symfony's [HttpKernel](https://symfony.com/packages/HttpKernel), [Routing](https://symfony.com/packages/Routing), [EventDispatcher](https://symfony.com/packages/EventDispatcher) and [Console](https://symfony.com/packages/Console) packages for building web and CLI applications.
 
-Well known packages [Monolog](https://seldaek.github.io/monolog/) (PSR-3 logging), [PHP-DI](https://php-di.org/) (PSR-11 dependency injection container), [Twig](https://twig.symfony.com/) (templating engine), [phpdotenv](https://github.com/vlucas/phpdotenv) (environment variables) and [nyholm/psr7](https://github.com/Nyholm/psr7) are bundled and preconfigured as well.
+Well known packages [Monolog](https://seldaek.github.io/monolog/) (PSR-3 logging), [PHP-DI](https://php-di.org/) (PSR-11 dependency injection container), [Twig](https://twig.symfony.com/) (templating engine), [phpdotenv](https://github.com/vlucas/phpdotenv) (environment variables) and [nyholm/psr7](https://github.com/Nyholm/psr7) (HTTP messages) are bundled and preconfigured as well.
 
-A basic but functional implementation for adding middleware to routes and controllers is also prepared. 
+A basic but functional implementation for adding middleware to routes and controllers along with CORS support is also included. 
 
 Additionally, a Docker image based on [FrankenPHP](https://frankenphp.dev/) is ready for development and production use-cases.
 
@@ -26,7 +24,9 @@ Additionally, a Docker image based on [FrankenPHP](https://frankenphp.dev/) is r
 
 ### Create project
 
-...
+```shell
+composer create-project tthe/bagatelle --dev
+```
 
 ### Run application
 
@@ -60,5 +60,3 @@ php bin/console.php
 - [HttpFoundation](https://symfony.com/doc/current/components/http_foundation.html) and [PSR-7: HTTP message interfaces](https://www.php-fig.org/psr/psr-7/) for HTTP messages
 - [The Dependency Injection Container](https://php-di.org/doc/)
 - [Console Commands](https://symfony.com/doc/current/console.html#creating-a-command)
-
-... add examples ...
