@@ -24,8 +24,10 @@ Additionally, a Docker image based on [FrankenPHP](https://frankenphp.dev/) is r
 
 ### Create project
 
+Create a new application based on Bagatelle (replace "my-project" with your name of choice):
+
 ```shell
-composer create-project tthe/bagatelle --dev
+composer create-project tthe/bagatelle my-project
 ```
 
 ### Run application
