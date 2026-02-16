@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Services\Http\ContentNegotiation;
 use Symfony\Component\ErrorHandler\Exception\FlattenException;
-use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +17,8 @@ use Twig\Environment as Template;
  */
 readonly class ErrorController
 {
+    use ContentNegotiation;
+
     public function __construct(
         private Template $view
     ) {}
@@ -25,7 +27,11 @@ readonly class ErrorController
     {
         $exceptionDetails = (bool) $_ENV["ERROR_DETAILS"];
 
-        $contentType = $this->negotiateContentType($request);
+        $contentType = $this->negotiateContentType($request, [
+            'text/html',
+            'application/problem+json',
+            'application/json',
+        ]);
 
         if (str_contains($contentType, 'json')) {
             $data = $this->asJSON($exception, $exceptionDetails);
@@ -36,22 +42,6 @@ readonly class ErrorController
             $data = $this->asHTML($exception, $exceptionDetails);
             return new Response($data);
         }
-    }
-
-    private function negotiateContentType(Request $request): string
-    {
-        $acceptable = [
-            'text/html',
-            'application/problem+json',
-            'application/json',
-        ];
-        $acceptHeader = AcceptHeader::fromString(
-            $request->headers->get('Accept') ?? '*/*'
-        );
-        $quality = fn($type) => $acceptHeader->get($type)?->getQuality() ?? 0;
-
-        usort($acceptable, fn($a, $b) => $quality($b) <=> $quality($a));
-        return $acceptable[0];
     }
 
     private function getUserMessage(FlattenException $exception): string
