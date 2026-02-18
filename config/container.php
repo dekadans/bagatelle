@@ -8,8 +8,7 @@ declare(strict_types=1);
  * Uses PHP-DI by default: https://php-di.org/
  */
 
-use App\Commands\GreetingCommand;
-use App\Services\GreetingInterface;
+use App\Commands\RoutesCommand;
 use DI\ContainerBuilder;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
@@ -55,7 +54,7 @@ $containerBuilder->addDefinitions([
     // Console commands. Add your command implementation classes here.
     'app.console.commands' => [
         // NOTE: Only add class names, not container references or instances.
-        GreetingCommand::class,
+        RoutesCommand::class,
     ],
 
     // Console application event subscribers.
@@ -81,7 +80,7 @@ $containerBuilder->addDefinitions([
     \App\Controllers\IndexController::class => autowire(),
     \App\Controllers\ErrorController::class => autowire(),
 
-    GreetingCommand::class => autowire(),
+    RoutesCommand::class => autowire(),
 ]);
 
 /*
@@ -93,22 +92,6 @@ $containerBuilder->addDefinitions([
     // The bundled dependency injection container autowires dependencies when possible, but here you can explicitly
     // define your services when needed, like when there's dependencies on interfaces. For example:
     // App\Services\EncabulationInterface::class => autowire(App\Services\TurboEncabulator::class)
-
-    // Service used in the default Bagatelle welcome page and sample console command.
-    GreetingInterface::class => function () {
-        return new class implements GreetingInterface {
-            public function greet(): string
-            {
-                $greetings = [
-                    'Hello!', 'Hi!', 'Hey!', 'Yo!', 'Hiya!',
-                    "How's everything?", 'How are you?', "How's it going?", "What's up?", 'Howdy!',
-                    'Greetings!', 'Welcome!', 'Nice to see you!', 'Long time no see!', 'How have you been?',
-                    'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?",
-                ];
-                return $greetings[array_rand($greetings)];
-            }
-        };
-    },
 ]);
 
 // Add the core Bagatelle configuration.

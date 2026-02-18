@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Services\GreetingInterface;
 use App\Services\Http\CORS;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,16 +19,15 @@ readonly class IndexController
 {
     public function __construct(
         private Twig $view,
-        private GreetingInterface $greeter,
         private UrlGeneratorInterface $url,
         private LoggerInterface $log
     ) {}
 
-    #[Route('/', name: 'index', methods: ['GET'])]
+    #[Route('/', name: 'index')]
     public function __invoke(Request $request): Response
     {
         $view = $this->view->render('bagatelle.html.twig', [
-            'title' => $this->greeter->greet(),
+            'title' => $this->greet(),
         ]);
         return new Response($view);
     }
@@ -53,8 +51,19 @@ readonly class IndexController
             throw new BadRequestHttpException('The provided name is too long!');
         }
 
-        $url = $this->url->generate('example', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $url = $this->url->generate('example', referenceType: UrlGeneratorInterface::ABSOLUTE_URL);
         $response->getBody()->write("Hello $name, you have reached `$url`.");
         return $response->withHeader('Content-Type', 'text/plain');
+    }
+
+    private function greet(): string
+    {
+        $greetings = [
+            'Hello!', 'Hi!', 'Hey!', 'Yo!', 'Hiya!',
+            "How's everything?", 'How are you?', "How's it going?", "What's up?", 'Howdy!',
+            'Greetings!', 'Welcome!', 'Nice to see you!', 'Long time no see!', 'How have you been?',
+            'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?",
+        ];
+        return $greetings[array_rand($greetings)];
     }
 }
