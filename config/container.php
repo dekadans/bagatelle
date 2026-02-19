@@ -14,6 +14,7 @@ use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
+use Psr\Log\LogLevel;
 use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 
 use function DI\autowire;
@@ -44,6 +45,30 @@ $containerBuilder->addDefinitions([
         // StreamHandler comes configured values from .env variables LOG_STREAM and LOG_LEVEL.
         $handler->setFormatter(new JsonFormatter());
         return new Logger('bagatelle-http', [$handler], [new PsrLogMessageProcessor()]);
+    },
+
+    // Overrides default logging for certain exceptions.
+    // Specifically lowers the criticality for some HTTP client errors.
+    // These exceptions can be used as responses to requests, without polluting the error log.
+    'app.http.logger.exceptions' => function () {
+        $exceptions = [
+            \Symfony\Component\HttpKernel\Exception\BadRequestHttpException::class, // 400
+            \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException::class, // 401
+            \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException::class, // 403
+            \Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class, // 404
+            \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException::class, // 405
+            \Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException::class, // 406
+            \Symfony\Component\HttpKernel\Exception\ConflictHttpException::class, // 409
+            \Symfony\Component\HttpKernel\Exception\GoneHttpException::class, // 410
+            \Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException::class, // 415
+            \Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException::class, // 422
+        ];
+
+        return array_fill_keys($exceptions, [
+            'log_level' => LogLevel::NOTICE,
+            'status_code' => null,
+            'log_channel' => null,
+        ]);
     },
 
     // --- Console Application Configuration

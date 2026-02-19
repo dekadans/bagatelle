@@ -126,7 +126,9 @@ return [
         create(HttpErrorListener::class)
             ->constructor(
                 ErrorController::class,
-                get(LoggerInterface::class)
+                get(LoggerInterface::class),
+                false,
+                get('app.http.logger.exceptions')
             ),
         create(PsrResponseListener::class)
             ->constructor(

@@ -24,12 +24,32 @@ readonly class IndexController
     ) {}
 
     #[Route('/', name: 'index')]
-    public function __invoke(Request $request): Response
+    public function index(Request $request): Response
     {
-        $view = $this->view->render('bagatelle.html.twig', [
-            'title' => $this->greet(),
+        /*
+         * Default welcome page demonstrating:
+         * - Accessing query parameters
+         * - Logging and HTTP exceptions
+         * - Rendering and returning HTML
+         */
+        $greetings = [
+            'Hello!', 'Hi!', 'Hey!', 'Yo!', 'Hiya!',
+            "How's everything?", 'How are you?', "How's it going?", "What's up?", 'Howdy!',
+            'Greetings!', 'Welcome!', 'Nice to see you!', 'Long time no see!', 'How have you been?',
+            'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?",
+        ];
+
+        $i = $request->query->get('i') ?? array_rand($greetings);
+
+        if ($i >= count($greetings)) {
+            $this->log->warning('Unable to handle request for greeting number {greeting_index}.', ['greeting_index' => $i]);
+            throw new BadRequestHttpException("Provided greeting index $i is out of bounds.");
+        }
+
+        $html = $this->view->render('bagatelle.html.twig', [
+            'title' => $greetings[$i],
         ]);
-        return new Response($view);
+        return new Response($html);
     }
 
     #[Route('/example', name: 'example', methods: ['GET'])]
@@ -37,33 +57,14 @@ readonly class IndexController
     public function example(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         /*
-         * Example route demonstrating:
-         * Using PSR-7 instead of Symfony HttpFoundation
-         * Applying the CORS middleware
-         * Exceptions and writing to the log
-         * Generating URLs
+         * Example page demonstrating:
+         * - Using PSR-7 instead of Symfony HttpFoundation
+         * - Applying the CORS middleware
+         * - Generating URLs
          */
-        $name = $request->getQueryParams()['name'] ?? 'world';
-        $limit = 10;
-
-        if (strlen($name) > $limit) {
-            $this->log->error("Name {name} exceeds string length $limit", ['name' => $name]);
-            throw new BadRequestHttpException('The provided name is too long!');
-        }
-
         $url = $this->url->generate('example', referenceType: UrlGeneratorInterface::ABSOLUTE_URL);
+        $name = $request->getQueryParams()['name'] ?? 'world';
         $response->getBody()->write("Hello $name, you have reached `$url`.");
         return $response->withHeader('Content-Type', 'text/plain');
-    }
-
-    private function greet(): string
-    {
-        $greetings = [
-            'Hello!', 'Hi!', 'Hey!', 'Yo!', 'Hiya!',
-            "How's everything?", 'How are you?', "How's it going?", "What's up?", 'Howdy!',
-            'Greetings!', 'Welcome!', 'Nice to see you!', 'Long time no see!', 'How have you been?',
-            'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?",
-        ];
-        return $greetings[array_rand($greetings)];
     }
 }
