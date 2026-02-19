@@ -43,11 +43,11 @@ or using Docker:
 ```shell
 docker compose up -d
 
-# or, for production config:
+# or, for production config (using port 80):
 SERVER_NAME="your-domain.com" docker compose -f compose.yaml -f compose.prod.yaml up
 ```
 
-Both will start your Bagatelle-based application at localhost:8080.
+Both development servers will start your Bagatelle-based application at localhost:8080.
 
 The console application is executed using:
 

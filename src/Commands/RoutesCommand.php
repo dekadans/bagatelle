@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Commands;
 
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -11,35 +13,32 @@ use Symfony\Component\Routing\RouterInterface;
 #[AsCommand('routes', 'Prints all registered routes.')]
 class RoutesCommand extends Command
 {
-    public function __construct(private RouterInterface $router)
+    public function __construct(private readonly RouterInterface $router)
     {
         parent::__construct();
     }
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Option(description: 'Filter by path prefix', shortcut: 'p')] ?string $prefix = null
+        #[Option(description: 'Filter by path prefix', shortcut: 'p')]
+        ?string $prefix = null
     ): int {
-        $routes = $this->getRoutes();
+        [$headers, $rows] = $this->getRouteTable();
 
         if ($prefix) {
-            $routes = array_filter($routes, fn ($r) => str_starts_with($r[1], $prefix));
+            $rows = array_filter($rows, fn($r) => str_starts_with($r[1], $prefix));
         }
 
-        if (!$routes) {
+        if (!$rows) {
             $io->error('No routes were found!');
             return Command::FAILURE;
         }
 
-        $io->table(
-            ['Name', 'Path', 'Methods', 'Controller'],
-            $routes
-        );
-
+        $io->table($headers, $rows);
         return Command::SUCCESS;
     }
 
-    private function getRoutes(): array
+    private function getRouteTable(): array
     {
         $routes = [];
         foreach ($this->router->getRouteCollection()->all() as $name => $route) {
@@ -51,8 +50,11 @@ class RoutesCommand extends Command
             ];
         }
 
-        usort($routes, fn ($a, $b) => $a[1] <=> $b[1]);
+        usort($routes, fn($a, $b) => $a[1] <=> $b[1]);
 
-        return $routes;
+        return [
+            ['Name', 'Path', 'Methods', 'Controller'],
+            $routes,
+        ];
     }
 }
