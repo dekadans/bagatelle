@@ -39,7 +39,7 @@ readonly class IndexController
             'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?",
         ];
 
-        $i = $request->query->get('i') ?? array_rand($greetings);
+        $i = $request->query->getInt('i') ?? array_rand($greetings);
 
         if ($i >= count($greetings)) {
             $this->log->warning('Unable to handle request for greeting number {greeting_index}.', ['greeting_index' => $i]);
@@ -63,7 +63,7 @@ readonly class IndexController
          * - Generating URLs
          */
         $url = $this->url->generate('example', referenceType: UrlGeneratorInterface::ABSOLUTE_URL);
-        $name = $request->getQueryParams()['name'] ?? 'world';
+        $name = $request->getQueryParams()['name'] ?: 'world';
         $response->getBody()->write("Hello $name, you have reached `$url`.");
         return $response->withHeader('Content-Type', 'text/plain');
     }
