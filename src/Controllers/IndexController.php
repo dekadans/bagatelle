@@ -39,7 +39,7 @@ readonly class IndexController
             'Good to see you!', 'Pleased to meet you!', 'How do you do?', 'Hey there!', "What's new?",
         ];
 
-        $i = $request->query->getInt('i') ?? array_rand($greetings);
+        $i = $request->query->has('i') ? $request->query->getInt('i') : array_rand($greetings);
 
         if ($i >= count($greetings)) {
             $this->log->warning('Unable to handle request for greeting number {greeting_index}.', ['greeting_index' => $i]);

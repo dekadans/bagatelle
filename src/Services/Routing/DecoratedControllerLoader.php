@@ -16,7 +16,7 @@ class DecoratedControllerLoader extends AttributeClassLoader
         object $attr
     ): void {
         $route->setDefault('_controller', $this->getControllerName($class, $method));
-        $route->setDefault('_middleware', new \SplStack());
+        $route->setDefault('_middleware', []);
         $this->runDecorators($route, $class, $method);
     }
 
