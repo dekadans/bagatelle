@@ -63,7 +63,7 @@ readonly class IndexController
          * - Generating URLs
          */
         $url = $this->url->generate('example', referenceType: UrlGeneratorInterface::ABSOLUTE_URL);
-        $name = $request->getQueryParams()['name'] ?: 'world';
+        $name = $request->getQueryParams()['name'] ?? 'world';
         $response->getBody()->write("Hello $name, you have reached `$url`.");
         return $response->withHeader('Content-Type', 'text/plain');
     }
