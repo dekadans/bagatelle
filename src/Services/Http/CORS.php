@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Http;
 
+use App\Services\Routing\Middleware;
 use App\Services\Routing\RouteDecoratorInterface;
 use Symfony\Component\Routing\Route;
 
@@ -41,7 +42,7 @@ class CORS implements RouteDecoratorInterface
 
     public function decorate(Route $route): void
     {
-        $route->setDefault('_middleware', [...$route->getDefault('_middleware'), CorsHandler::class]);
+        Middleware::add($route, CorsHandler::class);
 
         $route->setDefault('_cors', [
             'allow_origin' => $this->origin,

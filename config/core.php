@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\ErrorController;
 use App\Services\Routing\DecoratedControllerLoader;
-use App\Services\Routing\RouteEventSubscriber;
+use App\Services\Routing\MiddlewareHandler;
 use Monolog\Handler\StreamHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
@@ -134,7 +134,7 @@ return [
             ->constructor(
                 get(HttpFoundationFactoryInterface::class)
             ),
-        create(RouteEventSubscriber::class)
+        create(MiddlewareHandler::class)
             ->constructor(
                 get(ContainerInterface::class)
             ),
