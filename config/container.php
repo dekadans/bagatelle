@@ -27,6 +27,8 @@ $containerBuilder = new ContainerBuilder();
  *
  */
 $containerBuilder->addDefinitions([
+    'app.root' => dirname(__DIR__),
+
     // Default application timezone.
     // Set to one from https://www.php.net/manual/en/timezones.php
     'app.timezone' => 'UTC',
@@ -42,7 +44,7 @@ $containerBuilder->addDefinitions([
 
     // PSR-3 logger implementation for HTTP application.
     'app.http.logger' => function (StreamHandler $handler) {
-        // StreamHandler comes configured values from .env variables LOG_STREAM and LOG_LEVEL.
+        // StreamHandler comes configured with values from .env variables LOG_STREAM and LOG_LEVEL.
         $handler->setFormatter(new JsonFormatter());
         return new Logger('bagatelle-http', [$handler], [new PsrLogMessageProcessor()]);
     },
@@ -70,6 +72,8 @@ $containerBuilder->addDefinitions([
             'log_channel' => null,
         ]);
     },
+
+    'app.http.error-handler' => \App\Controllers\ErrorController::class,
 
     // --- Console Application Configuration
 
@@ -120,7 +124,7 @@ $containerBuilder->addDefinitions([
 ]);
 
 // Add the core Bagatelle configuration.
-$containerBuilder->addDefinitions(__DIR__ . '/core.php');
+$containerBuilder->addDefinitions(tthe\Bagatelle\Config\DefaultConfiguration::all());
 
 // If configured, we set the container to compile down to set instructions.
 if (!empty($_ENV['DI_CACHE_DIR'])) {
