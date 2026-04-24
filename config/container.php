@@ -9,6 +9,8 @@ declare(strict_types=1);
  */
 
 use App\Commands\RoutesCommand;
+use App\Controllers\ErrorController;
+use App\Controllers\IndexController;
 use DI\ContainerBuilder;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
@@ -38,7 +40,7 @@ $containerBuilder->addDefinitions([
     // HTTP request event subscribers.
     'app.http.subscribers' => [
         // Add Symfony event subscribers through container references, for example:
-        // autowire(App\Events\SomeEventSubscriber:class)
+        // autowire(\App\Events\SomeEventSubscriber::class)
         // They'll be automatically registered with the event dispatcher.
     ],
 
@@ -73,12 +75,12 @@ $containerBuilder->addDefinitions([
         ]);
     },
 
-    'app.http.error-handler' => \App\Controllers\ErrorController::class,
+    'app.http.error-handler' => ErrorController::class,
 
     // --- Console Application Configuration
 
     // The name of the console application.
-    'app.console.name' => 'Example Console Application',
+    'app.console.name' => 'Bagatelle Console Application',
 
     // Console commands. Add your command implementation classes here.
     'app.console.commands' => [
@@ -88,7 +90,7 @@ $containerBuilder->addDefinitions([
 
     // Console application event subscribers.
     'app.console.subscribers' => [
-        // ...
+        // autowire(\App\Events\SomeEventSubscriber::class)
     ],
 
     // PSR-3 logger implementation for console application.
@@ -106,8 +108,8 @@ $containerBuilder->addDefinitions([
     // Adding autowire definitions here is not necessary to make it work,
     // however, it will improve performance when using a compiled container in production.
 
-    \App\Controllers\IndexController::class => autowire(),
-    \App\Controllers\ErrorController::class => autowire(),
+    IndexController::class => autowire(),
+    ErrorController::class => autowire(),
 
     RoutesCommand::class => autowire(),
 ]);

@@ -12,13 +12,17 @@ Bagatelle is an opinionated PHP boilerplate bundle for simple websites and APIs.
 
 ## Contents
 
-Bagatelle centers around Symfony's [HttpKernel](https://symfony.com/packages/HttpKernel), [Routing](https://symfony.com/packages/Routing), [EventDispatcher](https://symfony.com/packages/EventDispatcher) and [Console](https://symfony.com/packages/Console) packages for building web and CLI applications.
+Bagatelle bundles core parts of [Symfony](https://symfony.com/) ([HttpKernel](https://symfony.com/packages/HttpKernel), [Routing](https://symfony.com/packages/Routing), [EventDispatcher](https://symfony.com/packages/EventDispatcher) and [Console](https://symfony.com/packages/Console)) with well known components [Monolog](https://seldaek.github.io/monolog/) (PSR-3 logging), [PHP-DI](https://php-di.org/) (PSR-11 dependency injection container), [Twig](https://twig.symfony.com/) (templating engine), [phpdotenv](https://github.com/vlucas/phpdotenv) (environment variables), [nyholm/psr7](https://github.com/Nyholm/psr7) (HTTP messages) and a Docker image based on [FrankenPHP](https://frankenphp.dev/).
 
-Well known packages [Monolog](https://seldaek.github.io/monolog/) (PSR-3 logging), [PHP-DI](https://php-di.org/) (PSR-11 dependency injection container), [Twig](https://twig.symfony.com/) (templating engine), [phpdotenv](https://github.com/vlucas/phpdotenv) (environment variables) and [nyholm/psr7](https://github.com/Nyholm/psr7) (HTTP messages) are bundled and preconfigured as well.
+### Middleware
 
-A basic but functional implementation for adding middleware to routes and controllers along with CORS support is also included. 
+Bagatelle also includes the following custom middleware:
 
-Additionally, a Docker image based on [FrankenPHP](https://frankenphp.dev/) is ready for development and production use-cases.
+- **CORS**: Support for configuring CORS-support on app, controller or route level.
+
+### Source Code
+
+This project, `tthe/bagatelle`, is the template for new projects. The implementation is in [`tthe/bagatelle-core`](https://github.com/dekadans/bagatelle-core).
 
 ## Get Started
 
@@ -30,9 +34,17 @@ Create a new application based on Bagatelle (replace "my-project" with your name
 composer create-project tthe/bagatelle my-project
 ```
 
+### Environment
+
+Enable the example environment configuration:
+
+```shell
+cp .env.example .env
+```
+
 ### Run application
 
-When developing you can either use PHPs built-in development server:
+When developing you can either use PHP's built-in development server:
 
 ```shell
 php -S localhost:8080 -t public
@@ -54,6 +66,10 @@ The console application is executed using:
 ```shell
 php bin/console.php
 ```
+
+### Build
+
+Add controllers to `src/Controllers`, console commands to `src/Commands` and configure the dependency injection container in `config/container.php`.
 
 ## Documentation
 
