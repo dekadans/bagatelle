@@ -25,6 +25,13 @@ $containerBuilder = new ContainerBuilder();
 
 /*
  *
+ * Core Bagatelle configuration.
+ *
+ */
+$containerBuilder->addDefinitions(tthe\Bagatelle\Config\DefaultConfiguration::all());
+
+/*
+ *
  * Application configuration.
  *
  */
@@ -125,8 +132,23 @@ $containerBuilder->addDefinitions([
     // App\Services\EncabulationInterface::class => autowire(App\Services\TurboEncabulator::class)
 ]);
 
-// Add the core Bagatelle configuration.
-$containerBuilder->addDefinitions(tthe\Bagatelle\Config\DefaultConfiguration::all());
+/*
+ *
+ * Bagatelle Middleware
+ *
+ */
+$containerBuilder->addDefinitions([
+    // Default configuration for the CORS middleware. Overridden by arguments passed to CORS attribute.
+    // Allow origins and headers using a wildcard string, '*', or an array of allowed values.
+    // Allowed methods always defaults to what the route accepts, unless overridden by attribute argument.
+    'bagatelle.http.middleware.cors' => [
+        'allow_origin' => '*',
+        'allow_headers' => '*',
+        'expose_headers' => [],
+        'allow_credentials' => false,
+        'max_age' => 600,
+    ]
+]);
 
 // If configured, we set the container to compile down to set instructions.
 if (!empty($_ENV['DI_CACHE_DIR'])) {

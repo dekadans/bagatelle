@@ -18,7 +18,7 @@ Bagatelle bundles core parts of [Symfony](https://symfony.com/) ([HttpKernel](ht
 
 Bagatelle also includes the following custom middleware:
 
-- **CORS**: Support for configuring CORS-support on app, controller or route level.
+- **CORS**: Support for configuring CORS-support on controller or route level.
 
 ### Source Code
 
