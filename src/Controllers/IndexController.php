@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use tthe\Bagatelle\Http\BasicAuth;
 use tthe\Bagatelle\Http\CORS;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -57,7 +58,7 @@ readonly class IndexController
     public function example(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         /*
-         * Example page demonstrating:
+         * Example resource demonstrating:
          * - Using PSR-7 instead of Symfony HttpFoundation
          * - Applying the CORS middleware
          * - Generating URLs
@@ -66,5 +67,16 @@ readonly class IndexController
         $name = $request->getQueryParams()['name'] ?? 'world';
         $response->getBody()->write("Hello $name, you have reached `$url`.");
         return $response->withHeader('Content-Type', 'text/plain');
+    }
+
+    #[Route('/user', name: 'user_example', methods: ['GET'])]
+    #[BasicAuth]
+    public function user_example(Request $request): Response
+    {
+        /*
+         * Example resource demonstrating the Basic Authentication middleware.
+         */
+        $user = $request->attributes->get('auth.user');
+        return new Response("Authenticated as '{$user['id']}'.", headers: ['Content-Type' => 'text/plain']);
     }
 }
