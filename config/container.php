@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Uses PHP-DI by default: https://php-di.org/
  */
 
-use App\Commands\RoutesCommand;
 use App\Controllers\ErrorController;
 use App\Controllers\IndexController;
 use DI\ContainerBuilder;
@@ -59,29 +58,9 @@ $containerBuilder->addDefinitions([
         return new Logger('bagatelle-http', [$handler], [new PsrLogMessageProcessor()]);
     },
 
-    // Overrides default logging for certain exceptions.
-    // Specifically lowers the criticality for some HTTP client errors.
+    // Sets log level for exceptions representing 4xx status codes, in \Symfony\Component\HttpKernel\Exception\...
     // These exceptions can be used as responses to requests, without polluting the error log.
-    'app.http.logger.exceptions' => function () {
-        $exceptions = [
-            \Symfony\Component\HttpKernel\Exception\BadRequestHttpException::class, // 400
-            \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException::class, // 401
-            \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException::class, // 403
-            \Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class, // 404
-            \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException::class, // 405
-            \Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException::class, // 406
-            \Symfony\Component\HttpKernel\Exception\ConflictHttpException::class, // 409
-            \Symfony\Component\HttpKernel\Exception\GoneHttpException::class, // 410
-            \Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException::class, // 415
-            \Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException::class, // 422
-        ];
-
-        return array_fill_keys($exceptions, [
-            'log_level' => LogLevel::NOTICE,
-            'status_code' => null,
-            'log_channel' => null,
-        ]);
-    },
+    'app.http.logger.client-errors' => LogLevel::NOTICE,
 
     'app.http.error-handler' => ErrorController::class,
 
@@ -93,7 +72,8 @@ $containerBuilder->addDefinitions([
     // Console commands. Add your command implementation classes here.
     'app.console.commands' => [
         // NOTE: Only add class names, not container references or instances.
-        RoutesCommand::class,
+        \tthe\Bagatelle\Routing\RoutesCommand::class,
+        \App\Commands\ExampleCommand::class
     ],
 
     // Console application event subscribers.
@@ -118,8 +98,6 @@ $containerBuilder->addDefinitions([
 
     IndexController::class => autowire(),
     ErrorController::class => autowire(),
-
-    RoutesCommand::class => autowire(),
 ]);
 
 /*
@@ -151,6 +129,7 @@ $containerBuilder->addDefinitions([
     ],
 
     // Default authentication implementation, reading username and password from environment variables.
+    // Used by the BasicAuth middleware.
     // Reimplement this for your user storage solution of choice.
     \tthe\Bagatelle\Auth\AuthenticatorInterface::class => create(\tthe\Bagatelle\Auth\EnvironmentAuthenticator::class)
         ->constructor(['BASIC_AUTH_USER' => 'BASIC_AUTH_PASSWORD'])
