@@ -19,7 +19,6 @@ use Psr\Log\LogLevel;
 use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 
 use function DI\autowire;
-use function DI\create;
 
 $containerBuilder = new ContainerBuilder();
 
@@ -131,7 +130,7 @@ $containerBuilder->addDefinitions([
     // Default authentication implementation, reading username and password from environment variables.
     // Used by the BasicAuth middleware.
     // Reimplement this for your user storage solution of choice.
-    \tthe\Bagatelle\Auth\AuthenticatorInterface::class => create(\tthe\Bagatelle\Auth\EnvironmentAuthenticator::class)
+    \tthe\Bagatelle\Auth\AuthenticatorInterface::class => autowire(\tthe\Bagatelle\Auth\EnvironmentAuthenticator::class)
         ->constructor(['BASIC_AUTH_USER' => 'BASIC_AUTH_PASSWORD'])
 ]);
 
