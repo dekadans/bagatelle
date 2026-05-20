@@ -22,7 +22,7 @@ readonly class ErrorController
 
     public function __invoke(Request $request, FlattenException $exception): Response
     {
-        $exceptionDetails = (bool) $_ENV["ERROR_DETAILS"];
+        $exceptionDetails = (bool) ($_ENV["ERROR_DETAILS"] ?? false);
         $problem = new ExceptionProblem($exception, $exceptionDetails);
 
         if (in_array($request->getPreferredFormat(), ['problem', 'json'])) {
