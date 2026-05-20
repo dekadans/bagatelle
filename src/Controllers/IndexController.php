@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use tthe\Bagatelle\Http\Attribute\Get;
 use tthe\Bagatelle\Http\BasicAuth;
 use tthe\Bagatelle\Http\CORS;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use tthe\Bagatelle\Middleware\Attribute\Middleware;
 use tthe\Bagatelle\Misc\Greeter;
 use Twig\Environment as Twig;
 
@@ -23,7 +24,7 @@ readonly class IndexController
         private UrlGeneratorInterface $url
     ) {}
 
-    #[Route('/', name: 'index')]
+    #[Get('/', 'index')]
     public function index(): Response
     {
         $html = $this->view->render('bagatelle.html.twig', [
@@ -32,8 +33,8 @@ readonly class IndexController
         return new Response($html);
     }
 
-    #[Route('/example', name: 'example', methods: ['GET'])]
-    #[CORS]
+    #[Get('/example', name: 'example')]
+    #[Middleware(CORS::class)]
     public function example(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         /*
@@ -48,8 +49,8 @@ readonly class IndexController
         return $response->withHeader('Content-Type', 'text/plain');
     }
 
-    #[Route('/user', name: 'user_example', methods: ['GET'])]
-    #[BasicAuth]
+    #[Get('/user', name: 'user_example')]
+    #[Middleware(BasicAuth::class)]
     public function user_example(Request $request): Response
     {
         /*
