@@ -28,22 +28,15 @@ readonly class ErrorController
         if (in_array($request->getPreferredFormat(), ['problem', 'json'])) {
             $response = $problem->toResponse();
         } else {
-            $response = $this->asHTML($problem);
+            $html = $this->view->render('@bagatelle/error.html.twig', [
+                'title' => $problem->status . ' ' . $problem->title,
+                'message' => $problem->detail,
+                'exception' => $problem->extensions['exceptions'] ?? null,
+            ]);
+            $response = new Response($html);
         }
 
         $response->headers->set('Vary', 'Accept');
         return $response;
-    }
-
-    private function asHTML(ExceptionProblem $problem): Response
-    {
-        $html = $this->view->render('bagatelle.html.twig', [
-            'page_title' => 'Error',
-            'title' => $problem->status . ' ' . $problem->title,
-            'message' => $problem->detail,
-            'exception' => $problem->extensions['exceptions'] ?? null,
-        ]);
-
-        return new Response($html);
     }
 }

@@ -4,46 +4,24 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use tthe\Bagatelle\Misc\Greeter;
 
 /**
- * Example on how to define a command using the attribute-based syntax.
- * All constructor parameters are resolved through the dependency injection container.
- *
- * NOTE: To enable a command, it must also be added to "app.console.commands" in config/container.php
+ * Example on how to define a command.
+ * To enable, it must also be added to "app.console.commands" in config/container.php
  */
 #[AsCommand('greet', 'A sample command that prints a friendly greeting.')]
 class ExampleCommand extends Command
 {
-    public function __construct(
-        private readonly Greeter $greeter,
-        private readonly LoggerInterface $logger
-    ) {
+    public function __construct(private readonly Greeter $greeter) {
         parent::__construct();
     }
 
-    public function __invoke(
-        SymfonyStyle $io,
-        #[Argument(description: 'The number of greetings to print.')]
-        int $number = 1
-    ): int {
-        // By default, INFO-level logs require extra verbosity (-vv flag) to be shown.
-        $this->logger->info('Initiating friendliness...');
-
-        if ($number > 100) {
-            $this->logger->error('Greeting overload! {number} is too many!', ['number' => $number]);
-            return Command::FAILURE;
-        }
-
-        for ($i = 0; $i < $number; $i++) {
-            $io->text($this->greeter->greet());
-        }
-
+    public function __invoke(SymfonyStyle $io): int {
+        $io->text($this->greeter->greet());
         return Command::SUCCESS;
     }
 }
