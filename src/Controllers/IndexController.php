@@ -20,7 +20,7 @@ readonly class IndexController
     public function index(): Response
     {
         $html = $this->view->render('welcome.html.twig', [
-            'title' => $this->greeter->greet(),
+            'greeting' => $this->greeter->greet(),
         ]);
         return new Response($html);
     }

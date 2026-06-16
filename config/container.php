@@ -68,13 +68,6 @@ $containerBuilder->addDefinitions([
     // The name of the console application.
     'app.console.name' => 'Bagatelle Console Application',
 
-    // Console commands. Add your command implementation classes here.
-    'app.console.commands' => [
-        // NOTE: Only add class names, not container references or instances.
-        \tthe\Bagatelle\Routing\RoutesCommand::class,
-        \App\Commands\ExampleCommand::class
-    ],
-
     // Console application event subscribers.
     'app.console.subscribers' => [
         // autowire(\App\Events\SomeEventSubscriber::class)
@@ -135,8 +128,8 @@ $containerBuilder->addDefinitions([
 ]);
 
 // If configured, we set the container to compile down to set instructions.
-if (!empty($_ENV['DI_CACHE_DIR'])) {
-    $containerBuilder->enableCompilation(__DIR__ . '/../' . $_ENV['DI_CACHE_DIR']);
+if (!empty($_ENV['CACHE_CONTAINER'])) {
+    $containerBuilder->enableCompilation(__DIR__ . '/../' . $_ENV['CACHE_CONTAINER']);
 }
 
 // This file can return any object implementing the PSR-11 ContainerInterface,
