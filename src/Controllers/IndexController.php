@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use Composer\InstalledVersions;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\HttpFoundation\Request;
 use tthe\Bagatelle\Http\Attribute\Get;
 use Symfony\Component\HttpFoundation\Response;
 use tthe\Bagatelle\Misc\Greeter;
@@ -17,11 +21,27 @@ readonly class IndexController
     ) {}
 
     #[Get('/', 'index')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        /*
+         * Controller action using Symfony's HttpFoundation.
+         */
         $html = $this->view->render('welcome.html.twig', [
             'greeting' => $this->greeter->greet(),
         ]);
         return new Response($html);
+    }
+
+    #[Get('/deps', 'deps')]
+    public function example(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        /*
+         * Controller action using PSR message interfaces.
+         */
+        $dependencies = implode("\n", InstalledVersions::getInstalledPackagesByType('library'));
+        $text = "# Installed Dependencies\n\n$dependencies";
+
+        $response->getBody()->write($text);
+        return $response->withHeader('Content-Type', 'text/plain');
     }
 }
