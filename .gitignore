@@ -7,4 +7,3 @@
 .DS_Store
 Thumbs.db
 /.env
-/.php-cs-fixer.cache
