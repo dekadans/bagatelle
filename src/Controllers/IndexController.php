@@ -32,7 +32,7 @@ readonly class IndexController
         return new Response($html);
     }
 
-    #[Get('/deps', 'deps')]
+    #[Get('/dependencies', 'deps')]
     public function example(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         /*

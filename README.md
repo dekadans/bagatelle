@@ -7,7 +7,7 @@ _― [bagatelle - Wiktionary, the free dictionary](https://en.wiktionary.org/wik
 
 ## Introduction
 
-Bagatelle is an opinionated PHP micro framework based on Symfony for simple websites and APIs.
+Bagatelle is a PHP micro framework based on Symfony for simple websites and APIs.
 
 ## Contents
 
